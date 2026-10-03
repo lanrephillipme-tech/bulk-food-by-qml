@@ -14,7 +14,6 @@
     "build:web": "node --check apps/web/main.js",
     "dev:admin": "npm --prefix apps/admin run dev",
     "build:admin": "npm --prefix apps/admin run build",
-    "dev:mobile": "npm --prefix apps/mobile run dev",
     "check": "node --check apps/api/server.mjs && node --check lib/api-core.mjs && node --check netlify/functions/api.mjs && node --check apps/web/main.js"
   }
 }

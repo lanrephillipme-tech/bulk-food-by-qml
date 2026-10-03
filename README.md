@@ -114,7 +114,7 @@ Implemented API areas include health checks, summary, admin overview, approvals,
 - `apps/api` - Local preview server for web app and API.
 - `netlify/functions` - Serverless backend API.
 - `supabase` - Database schema and starter seed data.
-- `apps/mobile` - Expo/native mobile source for future expansion.
+- Mobile app repo: `https://github.com/lanrephillipme-tech/bulk-food-by-qml-mobile`.
 - `apps/admin` - React admin source for future dashboard expansion.
 
 ## Run Locally
@@ -144,8 +144,9 @@ npm run build
 ```
 
 The current deployable preview is the dependency-light web/API app served by `apps/api/server.mjs`.
-The separate `apps/admin` and `apps/mobile` packages need their npm dependencies installed before
-their own build/dev commands can run.
+The standalone Expo/native mobile app lives in its own repository and points to this backend URL.
+The separate `apps/admin` package needs its npm dependencies installed before its own build/dev
+commands can run.
 
 ## Key API Endpoints
 
