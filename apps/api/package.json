@@ -1,0 +1,12 @@
+{
+  "name": "@qml/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "build": "node --check server.mjs",
+    "typecheck": "node --check server.mjs"
+  }
+}

@@ -1,0 +1,1167 @@
+openapi: 3.1.0
+info:
+  title: Bulk Food by QML API
+  version: 0.1.0
+  summary: Backend API for the QML customer, vendor, financier, logistics, corporate, and admin flows.
+  description: >
+    This API powers marketplace listings, AI approval, role dashboards, wallets,
+    orders, KYC, support, refunds, reports, and admin oversight. External APIs
+    should be used for identity, payments, maps, notifications, and storage while
+    QML owns business logic, risk rules, wallet ledger decisions, and approvals.
+servers:
+  - url: http://localhost:4000
+    description: Local development
+  - url: https://bulk-food-by-qml-api.onrender.com
+    description: Render production
+security:
+  - AdminRoleHeader: []
+    AdminApiKey: []
+tags:
+  - name: Health
+  - name: Auth
+  - name: Storage
+  - name: Admin
+  - name: Marketplace
+  - name: Users
+  - name: KYC
+  - name: Wallets
+  - name: Orders
+  - name: Support
+  - name: Role Dashboards
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Check API health and configured data source.
+      security: []
+      responses:
+        "200":
+          description: API health status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /api/summary:
+    get:
+      tags: [Admin]
+      summary: Public preview summary for the app shell.
+      security: []
+      responses:
+        "200":
+          description: Platform summary.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+  /api/storage/status:
+    get:
+      tags: [Storage]
+      summary: Check whether Supabase persistence is configured and required tables are reachable.
+      security: []
+      responses:
+        "200":
+          description: Seed mode status or Supabase-ready status.
+        "503":
+          description: Supabase is configured but one or more required tables are unreachable.
+  /api/readiness:
+    get:
+      tags: [Storage]
+      summary: Check launch readiness across database, auth, payments, maps, notifications, files, and AI services.
+      security: []
+      responses:
+        "200":
+          description: Go-live dependency status without exposing secret values.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadinessStatus"
+  /api/auth/signin:
+    post:
+      tags: [Auth]
+      summary: Sign in to QML.
+      description: >
+        Uses the local preview bridge when Supabase Auth is not configured. When
+        SUPABASE_URL and SUPABASE_ANON_KEY are configured, this calls Supabase
+        Auth password sign-in and returns a Bearer access token in the session.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthSignInRequest"
+      responses:
+        "200":
+          description: Signed-in session bundle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSessionResponse"
+        "404":
+          description: Account was not found.
+  /api/auth/signup:
+    post:
+      tags: [Auth]
+      summary: Create a QML account.
+      description: >
+        Creates a profile, active customer role, and personal wallet. In production
+        mode it first creates a Supabase Auth user; if confirmation is required,
+        the response tells the client to wait for email or phone confirmation.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthSignUpRequest"
+      responses:
+        "200":
+          description: Existing profile session bundle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSessionResponse"
+        "201":
+          description: Created profile session bundle.
+  /api/auth/provider:
+    post:
+      tags: [Auth]
+      summary: Start social/provider sign-in.
+      description: >
+        Uses the local preview bridge without Supabase. In production mode it
+        returns a Supabase OAuth authorization URL for Google or Apple redirect.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthProviderRequest"
+      responses:
+        "200":
+          description: Provider session bundle.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSessionResponse"
+  /api/admin/overview:
+    get:
+      tags: [Admin]
+      summary: Super admin overview for all marketplace activities.
+      responses:
+        "200":
+          description: Admin overview.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+  /api/admin/approvals:
+    get:
+      tags: [Admin]
+      summary: List products, vendors, KYC, and role applications needing review.
+      responses:
+        "200":
+          description: Approval queue.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApprovalItem"
+  /api/admin/approvals/{id}:
+    patch:
+      tags: [Admin]
+      summary: Approve, reject, suspend, or flag a queue item.
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, status]
+              properties:
+                type:
+                  type: string
+                  enum: [product, role_application, vendor, kyc]
+                status:
+                  type: string
+                  enum: [approved, rejected, suspended, needs_review]
+                actorId:
+                  type: string
+      responses:
+        "200":
+          description: Review result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  item:
+                    type: object
+  /api/admin/activity:
+    get:
+      tags: [Admin]
+      summary: List audit log activity.
+      responses:
+        "200":
+          description: Audit logs.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLog"
+  /api/admin/policies:
+    get:
+      tags: [Admin]
+      summary: Current KYC, listing, payment, and delivery rules.
+      responses:
+        "200":
+          description: Admin policy contract.
+  /api/admin/wallet-reconciliation:
+    get:
+      tags: [Admin]
+      summary: Inspect wallet ledger reconciliation, webhook exceptions, and settlement review.
+      responses:
+        "200":
+          description: Wallet reconciliation payload.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WalletReconciliation"
+  /api/admin/wallet-reconciliation/actions:
+    post:
+      tags: [Admin]
+      summary: Record an admin reconciliation decision without moving funds.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReconciliationActionRequest"
+      responses:
+        "201":
+          description: Audit entry recorded.
+        "400":
+          description: Invalid reconciliation action.
+  /api/users/usr_ada:
+    get:
+      tags: [Users]
+      summary: Demo current user profile, or authenticated profile when a Bearer token is supplied.
+      security: []
+      responses:
+        "200":
+          description: Current user payload.
+  /api/users/me:
+    get:
+      tags: [Users]
+      summary: Get the current authenticated user bundle from a Supabase Bearer token.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user payload.
+  /api/packages:
+    get:
+      tags: [Marketplace]
+      summary: List food packages with optional country/city filtering.
+      security: []
+      parameters:
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: city
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Food packages.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FoodPackage"
+  /api/products:
+    get:
+      tags: [Marketplace]
+      summary: List products.
+      security: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      tags: [Marketplace]
+      summary: Create a vendor product and run AI approval rules.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "201":
+          description: Product and AI approval result.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  product:
+                    $ref: "#/components/schemas/Product"
+                  ai:
+                    $ref: "#/components/schemas/AiReview"
+  /api/plans:
+    get:
+      tags: [Marketplace]
+      summary: List customer food plans.
+      responses:
+        "200":
+          description: Food plans.
+  /api/vendors:
+    get:
+      tags: [Marketplace]
+      summary: List vendors.
+      responses:
+        "200":
+          description: Vendors.
+  /api/financing-opportunities:
+    get:
+      tags: [Marketplace]
+      summary: List fundable food-plan opportunities.
+      responses:
+        "200":
+          description: Financing opportunities.
+  /api/deliveries:
+    get:
+      tags: [Marketplace]
+      summary: List delivery jobs.
+      responses:
+        "200":
+          description: Delivery queue.
+  /api/kyc:
+    get:
+      tags: [KYC]
+      summary: List KYC verification records.
+      responses:
+        "200":
+          description: KYC records.
+    post:
+      tags: [KYC]
+      summary: Submit customer KYC details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KycSubmission"
+      responses:
+        "201":
+          description: KYC record.
+  /api/wallets:
+    get:
+      tags: [Wallets]
+      summary: List all wallets.
+      responses:
+        "200":
+          description: Wallets.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Wallet"
+  /api/wallets/{ownerOrWalletId}:
+    get:
+      tags: [Wallets]
+      summary: Get wallet(s) and transaction history by owner or wallet id.
+      parameters:
+        - name: ownerOrWalletId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Wallet detail.
+  /api/wallets/deposit:
+    post:
+      tags: [Wallets]
+      summary: Record wallet funding.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [walletId, amount]
+              properties:
+                walletId:
+                  type: string
+                amount:
+                  type: number
+                description:
+                  type: string
+                reference:
+                  type: string
+                  description: Idempotency reference. Reusing the same value returns the existing transaction without applying wallet balance changes again.
+      responses:
+        "201":
+          description: Deposit transaction.
+        "200":
+          description: Duplicate reference; existing transaction returned without changing wallet balance.
+  /api/wallets/transactions:
+    post:
+      tags: [Wallets]
+      summary: Record a wallet ledger transaction such as order payment, plan payment, payout, or adjustment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [walletId, amount]
+              properties:
+                walletId:
+                  type: string
+                amount:
+                  type: number
+                type:
+                  type: string
+                  example: order_payment
+                description:
+                  type: string
+                reference:
+                  type: string
+                  description: Idempotency reference. Reusing the same value returns the existing transaction without applying wallet balance changes again.
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Wallet transaction.
+        "200":
+          description: Duplicate reference; existing transaction returned without changing wallet balance.
+        "409":
+          description: Insufficient wallet balance for a debit.
+  /api/wallets/transfer:
+    post:
+      tags: [Wallets]
+      summary: Transfer funds between wallets.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fromWalletId, toWalletId, amount]
+              properties:
+                fromWalletId:
+                  type: string
+                toWalletId:
+                  type: string
+                amount:
+                  type: number
+                description:
+                  type: string
+                reference:
+                  type: string
+                  description: Base idempotency reference for the transfer debit and credit legs.
+      responses:
+        "201":
+          description: Debit and credit transactions.
+        "409":
+          description: Insufficient source wallet balance.
+  /api/wallets/payvessel/account:
+    post:
+      tags: [Wallets]
+      summary: Create a PayVessel reserved virtual account for wallet funding.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [profileId, email, name, phoneNumber]
+              properties:
+                profileId:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+                accountType:
+                  type: string
+                  enum: [STATIC, DYNAMIC]
+                bvn:
+                  type: string
+                nin:
+                  type: string
+      responses:
+        "201":
+          description: QML wallet and PayVessel virtual account.
+  /api/wallets/payvessel/card:
+    post:
+      tags: [Wallets]
+      summary: Request a PayVessel virtual card for a wallet.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [profileId, walletId]
+              properties:
+                profileId:
+                  type: string
+                walletId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                isContactless:
+                  type: boolean
+      responses:
+        "201":
+          description: Card creation started.
+  /api/wallets/payvessel/kyc:
+    post:
+      tags: [KYC, Wallets]
+      summary: Verify BVN/NIN through PayVessel and store QML KYC status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [profileId]
+              properties:
+                profileId:
+                  type: string
+                bvn:
+                  type: string
+                nin:
+                  type: string
+      responses:
+        "201":
+          description: KYC verification result.
+  /api/wallets/payvessel/webhook:
+    post:
+      tags: [Wallets]
+      summary: Receive signed PayVessel webhooks and credit QML wallets after verification.
+      security: []
+      responses:
+        "200":
+          description: Webhook accepted.
+  /api/transactions:
+    get:
+      tags: [Wallets]
+      summary: List wallet transactions.
+      responses:
+        "200":
+          description: Transactions.
+  /api/orders:
+    get:
+      tags: [Orders]
+      summary: List orders.
+      responses:
+        "200":
+          description: Orders.
+    post:
+      tags: [Orders]
+      summary: Create an order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequest"
+      responses:
+        "201":
+          description: Created order.
+  /api/orders/{id}/cancel:
+    post:
+      tags: [Orders]
+      summary: Cancel an order and move it into review/refund flow.
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Cancelled order.
+  /api/orders/{id}/complete:
+    post:
+      tags: [Orders]
+      summary: Complete an order.
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Completed order.
+  /api/orders/{id}/delivery-proof:
+    post:
+      tags: [Orders]
+      summary: Submit delivery proof for an order.
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Delivery proof submitted.
+  /api/support/tickets:
+    get:
+      tags: [Support]
+      summary: List support tickets.
+      responses:
+        "200":
+          description: Tickets.
+    post:
+      tags: [Support]
+      summary: Create an encrypted support ticket.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSupportTicketRequest"
+      responses:
+        "201":
+          description: Created ticket.
+  /api/refunds:
+    get:
+      tags: [Support]
+      summary: List refund requests.
+      responses:
+        "200":
+          description: Refunds.
+    post:
+      tags: [Support]
+      summary: Create a refund request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRefundRequest"
+      responses:
+        "201":
+          description: Created refund.
+  /api/reports:
+    get:
+      tags: [Support]
+      summary: List account reports.
+      responses:
+        "200":
+          description: Reports.
+    post:
+      tags: [Support]
+      summary: Report an account, vendor, logistics partner, or unsafe behavior.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReportRequest"
+      responses:
+        "201":
+          description: Created report.
+  /api/dashboards/{role}:
+    get:
+      tags: [Role Dashboards]
+      summary: Get role dashboard metrics and available actions.
+      parameters:
+        - name: role
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [vendor, financier, logistics, corporate]
+      responses:
+        "200":
+          description: Role dashboard payload.
+  /api/role-applications:
+    post:
+      tags: [Users]
+      summary: Apply for vendor, financier, logistics, or corporate role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, role]
+              properties:
+                userId:
+                  type: string
+                role:
+                  type: string
+                  enum: [vendor, financier, logistics, corporate]
+                referralCode:
+                  type: string
+                payload:
+                  type: object
+      responses:
+        "201":
+          description: Application submitted.
+components:
+  securitySchemes:
+    AdminRoleHeader:
+      type: apiKey
+      in: header
+      name: X-Admin-Role
+      description: Development/admin role header. Replace with JWT auth before public production.
+    AdminApiKey:
+      type: apiKey
+      in: header
+      name: X-Admin-Api-Key
+      description: Optional production hardening header. Required when ADMIN_API_KEY is configured.
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Supabase JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    AuthSignInRequest:
+      type: object
+      required: [identifier]
+      properties:
+        identifier:
+          type: string
+          description: Email address or phone number.
+        password:
+          type: string
+          description: Accepted by the preview UI, but not verified by the development bridge.
+    AuthSignUpRequest:
+      type: object
+      required: [name, identifier]
+      properties:
+        name:
+          type: string
+        identifier:
+          type: string
+          description: Email address or phone number.
+        password:
+          type: string
+          description: Collected by the preview UI. Replace with real password/OTP auth before launch.
+        role:
+          type: string
+          enum: [customer, vendor, financier, logistics, corporate]
+        referralCode:
+          type: string
+    AuthProviderRequest:
+      type: object
+      required: [provider]
+      properties:
+        provider:
+          type: string
+          example: google
+        email:
+          type: string
+        name:
+          type: string
+        referralCode:
+          type: string
+    AuthSessionResponse:
+      type: object
+      properties:
+        session:
+          type: object
+          properties:
+            token:
+              type: string
+            userId:
+              type: string
+            authMethod:
+              type: string
+            requestedRole:
+              type: string
+            expiresAt:
+              type: string
+              format: date-time
+        user:
+          type: object
+        plans:
+          type: array
+          items:
+            type: object
+        roles:
+          oneOf:
+            - type: object
+            - type: array
+              items:
+                type: object
+        kyc:
+          type: object
+          nullable: true
+        wallets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Wallet"
+        transactions:
+          type: array
+          items:
+            type: object
+    ReadinessStatus:
+      type: object
+      properties:
+        launchReady:
+          type: boolean
+        generatedAt:
+          type: string
+          format: date-time
+        mode:
+          type: string
+          enum: [seed, supabase]
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReadinessService"
+        blockers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReadinessService"
+        storage:
+          type: object
+    ReadinessService:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        status:
+          type: string
+          enum: [ready, missing, mock, prototype, needs_schema]
+        required:
+          type: boolean
+        detail:
+          type: string
+    Health:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+        database:
+          type: string
+          enum: [seed, supabase]
+        deployTarget:
+          type: string
+    AdminOverview:
+      type: object
+      properties:
+        users:
+          type: integer
+        activePlans:
+          type: integer
+        vendors:
+          type: integer
+        products:
+          type: integer
+        financingOpen:
+          type: number
+        deliveriesAvailable:
+          type: integer
+        pendingApprovals:
+          type: integer
+        walletVolume:
+          type: number
+        activeOrders:
+          type: integer
+        supportOpen:
+          type: integer
+        riskQueue:
+          type: integer
+    ApprovalItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        vendor_id:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        stock_quantity:
+          type: integer
+        description:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        ai_status:
+          type: string
+        ai_score:
+          type: integer
+    CreateProductRequest:
+      type: object
+      required: [vendorId, title, price]
+      properties:
+        vendorId:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+        price:
+          type: number
+        unit:
+          type: string
+        stockQuantity:
+          type: integer
+        description:
+          type: string
+        vendorInfo:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+    AiReview:
+      type: object
+      properties:
+        approved:
+          type: boolean
+        score:
+          type: integer
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              passed:
+                type: boolean
+              label:
+                type: string
+    FoodPackage:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+        city:
+          type: string
+    KycSubmission:
+      type: object
+      required: [profileId]
+      properties:
+        profileId:
+          type: string
+        nin:
+          type: string
+        bvn:
+          type: string
+        address:
+          type: string
+        bankAccount:
+          type: string
+        card:
+          type: string
+        nextOfKin:
+          type: object
+        documents:
+          type: array
+          items:
+            type: string
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: string
+        owner_id:
+          type: string
+        owner_type:
+          type: string
+        label:
+          type: string
+        balance:
+          type: number
+        available_balance:
+          type: number
+        escrow_balance:
+          type: number
+    WalletReconciliation:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        totals:
+          type: object
+          properties:
+            wallets:
+              type: integer
+            transactions:
+              type: integer
+            credits:
+              type: number
+            debits:
+              type: number
+            duplicates:
+              type: integer
+            failedWalletLookups:
+              type: integer
+            settlementReview:
+              type: integer
+        recentLedger:
+          type: array
+          items:
+            type: object
+        duplicateWebhookEvents:
+          type: array
+          items:
+            type: object
+        failedWalletLookups:
+          type: array
+          items:
+            type: object
+        settlementReview:
+          type: array
+          items:
+            type: object
+        recentActions:
+          type: array
+          items:
+            type: object
+    ReconciliationActionRequest:
+      type: object
+      required: [action, itemId]
+      properties:
+        action:
+          type: string
+          enum: [acknowledge, mark_reviewed, request_investigation, hold_settlement]
+        itemType:
+          type: string
+        itemId:
+          type: string
+        reference:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+        note:
+          type: string
+    CreateOrderRequest:
+      type: object
+      required: [profileId, title, amount]
+      properties:
+        profileId:
+          type: string
+        packageId:
+          type: string
+        title:
+          type: string
+        amount:
+          type: number
+        paidAmount:
+          type: number
+        metadata:
+          type: object
+    CreateSupportTicketRequest:
+      type: object
+      required: [profileId, topic]
+      properties:
+        profileId:
+          type: string
+        topic:
+          type: string
+        priority:
+          type: string
+        message:
+          type: string
+    CreateRefundRequest:
+      type: object
+      required: [profileId, orderId]
+      properties:
+        profileId:
+          type: string
+        orderId:
+          type: string
+        amount:
+          type: number
+        reason:
+          type: string
+    CreateReportRequest:
+      type: object
+      required: [reporterId, subjectId]
+      properties:
+        reporterId:
+          type: string
+        subjectType:
+          type: string
+        subjectId:
+          type: string
+        reason:
+          type: string
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: string
+        actor_id:
+          type: string
+        action:
+          type: string
+        entity_type:
+          type: string
+        entity_id:
+          type: string
+        severity:
+          type: string
+        created_at:
+          type: string
+          format: date-time

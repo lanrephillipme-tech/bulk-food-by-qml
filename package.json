@@ -1,0 +1,20 @@
+{
+  "name": "bulk-food-by-qml",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "node apps/api/server.mjs",
+    "start": "node apps/api/server.mjs",
+    "build": "npm run check",
+    "dev:api": "node apps/api/server.mjs",
+    "build:api": "npm --prefix apps/api run build",
+    "build:web": "node --check apps/web/main.js",
+    "dev:admin": "npm --prefix apps/admin run dev",
+    "build:admin": "npm --prefix apps/admin run build",
+    "dev:mobile": "npm --prefix apps/mobile run dev",
+    "check": "node --check apps/api/server.mjs && node --check lib/api-core.mjs && node --check netlify/functions/api.mjs && node --check apps/web/main.js"
+  }
+}
