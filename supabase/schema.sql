@@ -313,6 +313,19 @@ create table if not exists audit_logs (
   created_at timestamptz not null default now()
 );
 
+create table if not exists device_push_tokens (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid references profiles(id) on delete set null,
+  token text not null unique,
+  platform text not null default 'unknown',
+  device_name text,
+  project_id text,
+  status text not null default 'active',
+  metadata jsonb not null default '{}',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists admin_policies (
   id uuid primary key default gen_random_uuid(),
   policy_key text unique not null,
@@ -329,6 +342,8 @@ create index if not exists wallets_virtual_account_idx on wallets(virtual_accoun
 create index if not exists wallet_transactions_wallet_idx on wallet_transactions(wallet_id);
 create unique index if not exists wallet_transactions_reference_idx on wallet_transactions(reference);
 create index if not exists payment_cards_wallet_idx on payment_cards(wallet_id);
+create index if not exists idx_device_push_tokens_profile_id on device_push_tokens(profile_id);
+create index if not exists idx_device_push_tokens_status on device_push_tokens(status);
 create index if not exists orders_profile_idx on orders(profile_id);
 create index if not exists support_tickets_status_idx on support_tickets(status);
 create index if not exists audit_logs_entity_idx on audit_logs(entity_type, entity_id);
