@@ -146,8 +146,10 @@ test("resend confirmation forwards the safe callback and returns a non-enumerati
   assert.equal(result.statusCode, 200);
   assert.match(result.data.message, /If this address has a pending signup/);
   assert.equal(calls[0].url.pathname, "/auth/v1/resend");
-  assert.equal(calls[0].url.searchParams.get("type"), "signup");
-  assert.equal(calls[0].url.searchParams.get("redirect_to"), callback);
+  const resendBody = JSON.parse(calls[0].options.body);
+  assert.equal(resendBody.type, "signup");
+  assert.equal(resendBody.email, "person@example.com");
+  assert.equal(resendBody.options.emailRedirectTo, callback);
 });
 
 test("welcome webhook verifies its secret and sends a branded, idempotent Resend email", async (t) => {
