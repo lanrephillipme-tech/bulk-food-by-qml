@@ -14,6 +14,7 @@
     "build:web": "node --check apps/web/main.js",
     "dev:admin": "npm --prefix apps/admin run dev",
     "build:admin": "npm --prefix apps/admin run build",
-    "check": "node --check apps/api/server.mjs && node --check lib/api-core.mjs && node --check netlify/functions/api.mjs && node --check apps/web/main.js"
+    "check": "node --check apps/api/server.mjs && node --check lib/api-core.mjs && node --check lib/auth-redirect.mjs && node --check netlify/functions/api.mjs && node --check apps/web/main.js && node --check apps/web/auth/callback.js",
+    "test:auth": "node --test tests/auth-redirect.test.mjs"
   }
 }

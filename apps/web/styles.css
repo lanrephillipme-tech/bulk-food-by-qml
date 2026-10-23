@@ -518,6 +518,14 @@ h3 { font-size: 17px; margin-bottom: 6px; }
   padding: 0 14px;
 }
 
+.bigcart-search .search-clear-btn {
+  background: #f3f5f1;
+  color: var(--muted);
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 12px;
+}
+
 .search-box {
   background: var(--white);
   border: 1px solid var(--line);
@@ -1070,6 +1078,14 @@ h3 { font-size: 17px; margin-bottom: 6px; }
   display: block;
   font-size: 13px;
   margin-top: 4px;
+}
+
+.cart-row small {
+  color: #6b746e;
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
+  margin-top: 5px;
 }
 
 .cart-row-actions {
@@ -1770,6 +1786,17 @@ body {
 
 .signup-role-grid button.selected span {
   color: #dce8d8;
+}
+
+.auth-select {
+  appearance: none;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23178342' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+  border: 1px solid #dce5dd;
+  border-radius: 7px;
+  color: #202820;
+  min-height: 48px;
+  padding: 0 42px 0 14px;
+  width: 100%;
 }
 
 .signup-requirement-card {
@@ -2843,18 +2870,25 @@ body {
 }
 
 .auth-shell {
-  background: #f4f5f9;
+  background: #f2f5f2;
   margin: 0 auto;
-  max-width: 414px;
+  max-width: 560px;
   min-height: 100vh;
-  padding: 18px 17px 28px;
+  padding: 18px 20px 36px;
+}
+
+.auth-shell .status-row {
+  color: #657168;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 
 .auth-top {
   align-items: center;
   display: grid;
   grid-template-columns: 44px 1fr 44px;
-  margin: 18px 0 32px;
+  margin: 22px 0 22px;
   min-height: 44px;
   text-align: center;
 }
@@ -2867,26 +2901,73 @@ body {
 }
 
 .auth-top h1 {
-  color: #000;
-  font-size: 21px;
+  color: #202820;
+  font-size: 22px;
   margin: 0;
 }
 
 .auth-card {
   background: #ffffff;
-  border: 0;
-  border-radius: 0;
-  padding: 24px 17px;
+  border: 1px solid #e1e8e1;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(28, 54, 34, .06);
+  padding: 28px clamp(18px, 6vw, 36px);
 }
 
-.auth-card .splash-logo.small {
-  font-size: 22px;
+.auth-wordmark {
+  align-items: center;
+  color: #178342;
+  display: flex;
+  font-size: 19px;
+  font-weight: 900;
+  gap: 9px;
+  justify-content: center;
   margin-bottom: 12px;
+}
+
+.auth-logo-mark {
+  align-items: center;
+  background: #178342;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  font-size: 18px;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.confirmation-mark {
+  align-items: center;
+  background: #eaf5ed;
+  border: 1px solid #cde6d3;
+  border-radius: 50%;
+  color: #178342;
+  display: flex;
+  font-size: 27px;
+  font-weight: 800;
+  height: 58px;
+  justify-content: center;
+  margin: 0 auto 18px;
+  width: 58px;
+}
+
+.confirmation-copy {
+  overflow-wrap: anywhere;
+}
+
+.auth-footnote {
+  color: #657168 !important;
+  font-size: 12px !important;
+  margin: 14px 0 0 !important;
+}
+
+.auth-card .auth-wordmark {
   text-align: center;
 }
 
 .auth-card p {
-  color: #8e9299;
+  color: #647168;
   font-size: 14px;
   line-height: 1.45;
   margin-bottom: 22px;
@@ -2905,9 +2986,10 @@ body {
 .auth-card input,
 .form-card input,
 .two-inputs input {
-  background: #f4f5f9;
+  background: #f6f8f6;
   border: 0;
-  border-radius: 5px;
+  border: 1px solid #e2e8e2;
+  border-radius: 7px;
   min-height: 51px;
   outline: none;
   padding: 0 16px;
@@ -2925,6 +3007,12 @@ body {
 .text-link.right {
   display: block;
   margin-left: auto;
+}
+
+@media (max-width: 420px) {
+  .auth-shell { padding: 14px 14px 28px; }
+  .auth-top { margin: 14px 0 18px; }
+  .auth-card { padding: 22px 17px; }
 }
 
 .chip-section {
@@ -3062,10 +3150,11 @@ body {
 .filter-action-row.fixed-bottom {
   background: rgba(244, 245, 249, .94);
   border-top: 1px solid #e5eadf;
-  bottom: 0;
+  bottom: calc(92px + env(safe-area-inset-bottom));
   justify-content: flex-end;
   margin: 0;
-  padding: 12px 17px 24px;
+  padding: 12px 17px;
+  z-index: 90;
 }
 
 .two-inputs {
@@ -3989,6 +4078,28 @@ button:active {
   width: 100%;
 }
 
+.custom-basket-option {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+}
+
+.custom-basket-option i {
+  background-color: #edf7e8;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-radius: 8px;
+  display: block;
+  height: 64px;
+  width: 64px;
+}
+
+.basket-food-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
 .custom-basket-option strong,
 .vendor-competition-card strong {
   display: block;
@@ -4006,6 +4117,27 @@ button:active {
 .custom-basket-option b {
   color: #111111;
   white-space: nowrap;
+}
+
+.vendor-offer-line {
+  background: #ffffff;
+  border: 1px solid #e4ebe0;
+  border-radius: 8px;
+  display: grid !important;
+  gap: 2px;
+  padding: 7px 8px;
+}
+
+.vendor-offer-line b {
+  color: #253226;
+  font-size: 12px;
+  white-space: normal;
+}
+
+.vendor-offer-line small {
+  color: #6c766f;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 .custom-basket-option.selected,
@@ -4038,6 +4170,150 @@ button:active {
   font-size: 13px;
   line-height: 1.45;
   margin: 0 0 4px;
+}
+
+.vendor-offer-card,
+.unit-size-card,
+.meal-plan-ai-card {
+  background: #ffffff;
+  border: 1px solid #e6ebe7;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 14px;
+}
+
+.vendor-offer-card h2,
+.unit-size-card h2,
+.meal-plan-ai-card h2 {
+  font-size: 17px;
+  margin: 0;
+}
+
+.vendor-offer-card p,
+.unit-size-card p,
+.meal-plan-ai-card p {
+  color: #68726b;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.unit-size-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.unit-size-grid button {
+  align-items: center;
+  background: #f7faf4;
+  border: 1px solid #dde8d6;
+  border-radius: 8px;
+  color: #17211b;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 46px 1fr;
+  min-height: 64px;
+  padding: 8px;
+  text-align: left;
+}
+
+.unit-size-grid button.selected {
+  background: #eaf8df;
+  border-color: #6cc51d;
+}
+
+.unit-size-grid i {
+  aspect-ratio: 1 / 1;
+  background-color: #edf7e8;
+  background-position: center;
+  background-size: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.unit-size-grid strong,
+.unit-size-grid small {
+  display: block;
+}
+
+.unit-size-grid strong {
+  color: #17211b;
+  font-size: 13px;
+}
+
+.unit-size-grid small {
+  color: #68726b;
+  font-size: 11px;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.vendor-offer-list,
+.meal-plan-payments {
+  display: grid;
+  gap: 8px;
+}
+
+.vendor-offer-list button,
+.meal-plan-payments button {
+  align-items: center;
+  background: #f7faf4;
+  border: 1px solid #dde8d6;
+  border-radius: 8px;
+  color: #17211b;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  min-height: 58px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.vendor-offer-list button.selected,
+.meal-plan-payments button:hover {
+  background: #eaf8df;
+  border-color: #6cc51d;
+}
+
+.vendor-offer-list button span,
+.meal-plan-payments button span {
+  color: #68726b;
+  display: grid;
+  font-size: 12px;
+  gap: 2px;
+  line-height: 1.35;
+}
+
+.vendor-offer-list button b {
+  color: #17211b;
+  display: grid;
+  font-size: 14px;
+  justify-items: end;
+  white-space: nowrap;
+}
+
+.vendor-offer-list button b small {
+  color: #68726b;
+  font-size: 11px;
+}
+
+.meal-plan-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meal-plan-grid span {
+  background: #f4f8f1;
+  border: 1px solid #e0ead9;
+  border-radius: 8px;
+  color: #28362b;
+  font-size: 12px;
+  line-height: 1.35;
+  padding: 9px 10px;
 }
 
 .floating-custom-plan {
@@ -5267,6 +5543,9 @@ body, button, input, select, textarea { transition: background-color .2s ease, b
 :root[data-theme="dark"] .support-hero-card,
 :root[data-theme="dark"] .wallet-safety-note,
 :root[data-theme="dark"] .vendor-writeup-card,
+:root[data-theme="dark"] .unit-size-card,
+:root[data-theme="dark"] .vendor-offer-card,
+:root[data-theme="dark"] .meal-plan-ai-card,
 :root[data-theme="dark"] .preview-action-panel,
 :root[data-theme="dark"] .review-card,
 :root[data-theme="dark"] .list-row,
@@ -5299,6 +5578,22 @@ body, button, input, select, textarea { transition: background-color .2s ease, b
   background: var(--surface) !important;
   border-color: var(--line) !important;
   color: var(--text) !important;
+}
+
+:root[data-theme="dark"] .unit-size-grid button,
+:root[data-theme="dark"] .vendor-offer-list button,
+:root[data-theme="dark"] .meal-plan-payments button,
+:root[data-theme="dark"] .meal-plan-grid span,
+:root[data-theme="dark"] .vendor-offer-line {
+  background: var(--surface-soft) !important;
+  border-color: var(--line) !important;
+  color: var(--text) !important;
+}
+
+:root[data-theme="dark"] .unit-size-grid button.selected,
+:root[data-theme="dark"] .vendor-offer-list button.selected {
+  background: #203a25 !important;
+  border-color: var(--green) !important;
 }
 
 :root[data-theme="dark"] .option-list button.selected { background: #203a25 !important; border-color: var(--green) !important; }
@@ -5936,6 +6231,51 @@ body, button, input, select, textarea { transition: background-color .2s ease, b
 .map-grid b {
   font-size: 10px;
   line-height: 1;
+}
+
+.delivery-location-card {
+  border: 1px solid #dbe8d5;
+}
+
+.delivery-map-grid {
+  min-height: 230px;
+}
+
+.delivery-map-grid button {
+  height: 58px;
+  width: 58px;
+}
+
+.delivery-status-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.delivery-status-grid span {
+  background: #f7faf4;
+  border: 1px solid #e1eadb;
+  border-radius: 8px;
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.delivery-status-grid b,
+.delivery-status-grid small {
+  overflow-wrap: anywhere;
+}
+
+.delivery-action-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.shipping-info-card {
+  display: grid;
+  gap: 10px;
 }
 
 .biometric-card {

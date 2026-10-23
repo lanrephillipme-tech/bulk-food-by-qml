@@ -1,7 +1,7 @@
 const money = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 });
 const app = document.querySelector("#app");
 
-const categories = ["Grains", "Protein", "Live Protein", "Livestock", "Poultry", "Oil", "Tubers", "Fresh Produce", "Fruits", "Vegetables", "Legumes", "Spices", "Dairy", "Bakery", "Healthy Meals", "Imperishables", "Same-day Perishables", "Nigerian Staples", "African Produce", "Asian Produce", "American Produce", "European Pantry", "Street Market", "Roadside Market", "International Market", "Staff Packs", "Baby & Family"];
+const categories = ["Grains", "Rice & Cereals", "Fast Moving Staples", "Export Raw Materials", "Africa High Demand", "Global Commodities", "Diaspora Staples", "Protein", "Live Protein", "Livestock", "Poultry", "Oil", "Tubers", "Garri & Cassava", "Flours & Swallows", "Fresh Produce", "Fruits", "Vegetables", "Soup Ingredients", "Legumes", "Beans & Legumes", "Nuts & Seeds", "Spices", "Condiments", "Dairy", "Bakery", "Frozen Foods", "Canned & Dry Goods", "Healthy Meals", "Imperishables", "Same-day Perishables", "Nigerian Staples", "African Produce", "Asian Produce", "American Produce", "European Pantry", "Street Market", "Roadside Market", "International Market", "Staff Packs", "Baby & Family"];
 const defaultFoodTags = [
   "All Food",
   ...categories,
@@ -706,30 +706,196 @@ const marketProduceSources = [
   }
 ];
 
+const farmProduceExpansionSources = [
+  {
+    region: "nigeria",
+    country: "Nigeria",
+    sourceKey: "nigeria_deep_farm_produce",
+    vendor: "Deep Local Farm Produce Registry",
+    location: "Nigeria local and neighbouring markets",
+    marketTypes: ["farm gate", "local market", "roadside market", "neighbourhood market", "grocery store", "wholesale market"],
+    items: produceGroupItems([
+      ["Rice & Cereals", "bag", ["Local Parboiled Rice", "Stone-free Rice", "Long Grain Rice", "Short Grain Rice", "Brown Rice", "Paddy Rice", "Yellow Maize", "White Maize", "Sweet Corn", "Guinea Corn", "Fonio Acha", "Wheat Grain", "Oats", "Barley", "Popcorn Maize"]],
+      ["Garri & Cassava", "sack", ["Cassava Flour", "Cassava Starch", "Tapioca Pearls", "Lafun Flour", "Akpu Cassava Dough", "Fermented Cassava", "Cassava Chips", "High-quality Cassava Peel", "Yellow Cassava Garri", "White Cassava Garri"]],
+      ["Flours & Swallows", "bag", ["Yam Flour Elubo", "Plantain Flour", "Bean Flour", "Corn Flour", "Rice Flour", "Millet Flour", "Sorghum Flour", "Wheat Flour", "Semolina", "Semovita", "Amala Flour", "Poundo Yam Flour", "Fufu Flour", "Masa Flour"]],
+      ["Tubers", "crate", ["New Yam", "Old Yam", "Seed Yam", "Sweet Yam", "Cocoyam Ede", "Taro Root", "Irish Potatoes", "Red Sweet Potatoes", "White Sweet Potatoes", "Ginger Rhizome", "Turmeric Rhizome", "Arrowroot", "Breadfruit Ukwa"]],
+      ["Beans & Legumes", "paint bucket", ["Oloyin Beans", "Drum Beans", "White Beans", "Red Beans", "Cowpea", "Soybeans", "Pigeon Peas", "Lima Beans", "Black Beans", "Peanut Groundnut", "Boiled Groundnut", "Roasted Groundnut", "Bambara Groundnut", "African Yam Bean", "Locust Beans Iru", "Soybean Meal"]],
+      ["Nuts & Seeds", "bag", ["Shelled Melon Egusi", "Unshelled Egusi", "Pumpkin Seeds", "Sesame Beniseed", "Cashew Kernels", "Raw Cashew Nuts", "Tiger Nuts Aya", "Walnuts Asala", "Coconut Pieces", "Fluted Pumpkin Seeds", "Sunflower Seeds", "Peanut Paste", "Kola Nuts", "Bitter Kola"]],
+      ["Vegetables", "basket", ["African Spinach Green", "Shoko Leaves", "Amaranth Greens", "Tete Leaves", "Afang Leaves", "Editan Leaves", "Atama Leaves", "Oha Leaves", "Utazi Leaves", "Nchanwu Scent Leaf", "Uziza Seeds", "Uziza Leaves", "Pumpkin Flower", "Broccoli", "Lettuce", "Celery", "Green Peas", "Runner Beans", "Bell Peppers", "Green Pepper", "Red Pepper", "Yellow Pepper", "Carrot Bag", "Beetroot", "Cabbage Head", "Cucumber Crate", "Cauliflower", "Mushrooms", "Zucchini", "Spring Onion Bundle"]],
+      ["Soup Ingredients", "bag", ["Ground Egusi", "Whole Egusi", "Ogbono Powder", "Whole Ogbono", "Dawadawa", "Potash Akaun", "Dry Okazi", "Dry Ugu", "Dry Bitterleaf", "Dry Ewedu", "Dry Pepper", "Dry Crayfish", "Ground Crayfish", "Dried Prawns", "Dry Stockfish Pieces", "Smoked Fish Pieces", "Soup Spice Mix", "Banga Spice", "Achi Thickener", "Ofor Thickener"]],
+      ["Spices", "pack", ["Fresh Garlic", "Dry Garlic", "Fresh Ginger", "Dry Ginger Powder", "Turmeric Powder", "Curry Powder", "Thyme", "Bay Leaves", "Cloves", "Nutmeg", "Calabash Nutmeg Ehuru", "Alligator Pepper", "Black Pepper", "White Pepper", "Cumin Seeds", "Coriander Seeds", "Fennel Seeds", "Anise Seeds", "Paprika", "Suya Spice Yaji", "Cameroon Pepper", "Habanero Pepper", "Bird Eye Chili", "Fresh Basil", "Mint Leaves"]],
+      ["Fresh Produce", "basket", ["Fresh Tomatoes", "Roma Tomatoes", "Cherry Tomatoes", "Plum Tomatoes", "Fresh Red Onions", "White Onions", "Shallots", "Fresh Okra", "Fresh Garden Egg", "Fresh Cucumbers", "Fresh Carrots", "Fresh Green Beans", "Fresh Sweet Corn", "Fresh Pepper Mix", "Fresh Salad Mix"]],
+      ["Fruits", "crate", ["Apple", "Green Apple", "Grapes", "Avocado Pear", "Guava", "Soursop", "African Star Apple Agbalumo", "Tangerine", "Lemon", "Lime", "Grapefruit", "Golden Melon", "Cantaloupe", "Cashew Apple", "Dates Dabino", "Raisins", "African Pear Ube", "Pear", "Strawberries", "Blueberries", "Blackberries", "Passion Fruit", "Dragon Fruit", "Kiwi", "Pomegranate"]],
+      ["Oil", "keg", ["Red Palm Oil", "Bleached Palm Oil", "Palm Kernel Oil", "Groundnut Oil", "Soybean Oil", "Sesame Oil", "Coconut Oil", "Vegetable Oil", "Sunflower Oil", "Canola Oil", "Shea Butter", "Raw Palm Kernel", "Oil Palm Bunch"]],
+      ["Protein", "carton", ["Titus Fish", "Mackerel", "Hake Fish", "Croaker Fish", "Panla Fish", "Tilapia Cuts", "Catfish Cuts", "Frozen Turkey", "Frozen Chicken", "Chicken Gizzard", "Chicken Wings", "Chicken Laps", "Turkey Wings", "Beef Cuts", "Cow Leg", "Cow Skin Ponmo", "Goat Meat", "Ram Meat", "Lamb Cuts", "Snail Meat", "Periwinkle", "Prawns", "Shrimps", "Dried Bonga Fish", "Dried Mangala Fish"]],
+      ["Dairy", "pack", ["Fresh Milk", "Evaporated Milk", "Powdered Milk", "Yoghurt", "Greek Yoghurt", "Butter", "Margarine", "Cheese Slices", "Local Wara Cheese", "Cream Cheese"]],
+      ["Frozen Foods", "carton", ["Frozen Mixed Vegetables", "Frozen Peas", "Frozen Sweet Corn", "Frozen Fish Fillets", "Frozen Chicken Carton", "Frozen Turkey Carton", "Frozen Beef Pack", "Frozen Sausage", "Frozen Fries"]],
+      ["Canned & Dry Goods", "carton", ["Canned Tomatoes", "Tomato Paste", "Canned Sweet Corn", "Canned Sardines", "Canned Mackerel", "Canned Baked Beans", "Canned Tuna", "Coconut Milk Can", "Noodles Carton", "Spaghetti Pack", "Macaroni Pack", "Breakfast Cereal", "Custard Powder", "Cornflakes", "Oatmeal", "Granola", "Bread Flour", "Baking Yeast"]],
+      ["Condiments", "pack", ["Bouillon Cubes", "Salt", "Vinegar", "Soy Sauce", "Fish Sauce", "Hot Sauce", "Ketchup", "Mayonnaise", "Peanut Butter", "Jam", "Honey", "Date Syrup", "Banga Paste", "Tomato Stew Base"]]
+    ])
+  },
+  {
+    region: "africa",
+    country: "West Africa",
+    sourceKey: "west_africa_neighboring_market",
+    vendor: "Neighbouring West African Market",
+    location: "Cotonou / Accra / Lome",
+    marketTypes: ["cross-border market", "local market", "roadside market", "international market"],
+    items: produceGroupItems([
+      ["Grains", "bag", ["Jollof Rice Grain", "Broken Rice", "Fonio Grain", "Millet Couscous", "White Sorghum", "Red Sorghum", "Yellow Corn Meal"]],
+      ["Tubers", "crate", ["Ghana Yam", "Benin Cassava", "Togo Sweet Potatoes", "Cocoyam Taro", "Plantain Fingers", "Unripe Banana"]],
+      ["Beans & Legumes", "bag", ["Navy Beans", "Adzuki Beans", "Cowpea Flour", "Peanut Kernels", "Soy Nuggets", "Tiger Nut Flour"]],
+      ["Vegetables", "basket", ["Kontomire Spinach", "Jute Mallow Leaves", "Roselle Leaves", "African Eggplant", "African Cucumber", "Long Okra", "Fresh Chili Mix"]],
+      ["Fruits", "crate", ["Ghana Mango", "Benin Pineapple", "Togo Coconut", "Sweet Banana", "African Pear", "Papaya", "Orange Sack", "Lime Basket"]],
+      ["Spices", "pack", ["Grains of Paradise", "Negro Pepper Uda", "Prekese", "Dried Hibiscus Zobo", "Clove Pepper Mix", "Ginger Powder", "Dried Mint"]],
+      ["Protein", "carton", ["Smoked Tilapia", "Dried Anchovies", "Dried Sardines", "Salted Fish", "Dried Shrimps", "Guinea Fowl", "Local Chicken", "Fresh Eggs"]]
+    ])
+  },
+  {
+    region: "local",
+    country: "Grocery Store",
+    sourceKey: "grocery_store_farm_foods",
+    vendor: "Neighbourhood Grocery & Fresh Aisle",
+    location: "Nearby grocery stores",
+    marketTypes: ["grocery store", "mini mart", "fresh aisle", "neighbourhood market"],
+    items: produceGroupItems([
+      ["Fresh Produce", "pack", ["Salad Tomatoes", "Vine Tomatoes", "Cherry Pepper", "Mixed Bell Pepper", "Packaged Spinach", "Packaged Lettuce", "Baby Carrots", "Broccoli Florets", "Green Peas Pack", "Sweet Corn Pack", "Mushroom Pack"]],
+      ["Fruits", "pack", ["Seedless Grapes", "Green Grapes", "Red Grapes", "Packaged Apples", "Banana Fingers", "Fruit Salad Pack", "Mixed Berries", "Pineapple Chunks", "Watermelon Slices", "Orange Net", "Lemon Net"]],
+      ["Dairy", "pack", ["Whole Milk", "Low Fat Milk", "Liquid Yoghurt", "Plain Yoghurt", "Mozzarella Cheese", "Cheddar Cheese", "Egg Tray", "Butter Pack"]],
+      ["Protein", "pack", ["Chicken Breast", "Chicken Drumsticks", "Minced Beef", "Beef Steak", "Fish Fillet", "Salmon Portion", "Prawns Pack", "Sausage Pack"]],
+      ["Canned & Dry Goods", "pack", ["Long Grain Rice Pack", "Basmati Rice Pack", "Brown Rice Pack", "Dry Beans Pack", "Lentil Pack", "Chickpea Pack", "Pasta Pack", "Instant Noodles Pack", "Canned Peas", "Canned Beans", "Canned Fish", "Tomato Puree"]],
+      ["Condiments", "bottle", ["Cooking Oil Bottle", "Olive Oil Bottle", "Sesame Oil Bottle", "Chili Sauce", "Barbecue Sauce", "Curry Paste", "Garlic Paste", "Ginger Paste"]]
+    ])
+  },
+  {
+    region: "nigeria",
+    country: "Nigeria",
+    sourceKey: "farm_gate_cash_food_crops",
+    vendor: "Farm Gate Agricultural Produce Board",
+    location: "Farm clusters",
+    marketTypes: ["farm gate", "commodity market", "wholesale market", "processor pickup"],
+    items: produceGroupItems([
+      ["Nuts & Seeds", "sack", ["Cocoa Beans", "Raw Cashew Nuts", "Sesame Seed Commodity Bag", "Soybean Commodity Bag", "Groundnut Commodity Bag", "Shea Nuts", "Palm Kernel Nuts", "Cotton Seed"]],
+      ["Spices", "sack", ["Dry Ginger Export Grade", "Fresh Ginger Export Grade", "Dry Chili Pepper", "Hibiscus Flower Zobo", "Gum Arabic Food Grade"]],
+      ["Oil", "sack", ["Palm Kernel Cake", "Palm Kernel Shell Food Fuel", "Oil Palm Fruit Bunch", "Shea Butter Food Grade"]],
+      ["Grains", "sack", ["Commodity Maize", "Commodity Sorghum", "Commodity Millet", "Commodity Paddy Rice", "Commodity Wheat"]],
+      ["Garri & Cassava", "sack", ["Cassava Starch Industrial Food Grade", "Cassava Flour HQCF", "Garri Wholesale Sack", "Tapioca Starch"]]
+    ])
+  }
+];
+
+const fastMovingProduceSources = [
+  {
+    region: "nigeria",
+    country: "Nigeria",
+    sourceKey: "nigeria_fast_moving_staples",
+    vendor: "Nigeria Fast-Moving Staples Desk",
+    location: "Lagos / Kano / Onitsha / Mile 12 / Bodija",
+    marketTypes: ["daily market", "wholesale market", "roadside market", "neighbourhood market", "processor pickup", "grocery restock"],
+    items: produceGroupItems([
+      ["Fast Moving Staples", "bag", ["50kg Local Rice Fast Mover", "25kg Parboiled Rice Fast Mover", "Imported Rice Market Bag", "White Garri Daily Sack", "Yellow Garri Daily Sack", "Ijebu Garri Pack", "White Maize Grain Bag", "Yellow Maize Grain Bag", "Guinea Corn Sorghum Sack", "Millet Grain Sack", "Wheat Flour Bakery Bag", "Semovita Carton", "Semolina Carton"]],
+      ["Garri & Cassava", "sack", ["Cassava Tubers Truckload", "Fresh Cassava Basket", "Cassava Chips Processor Sack", "HQCF Cassava Flour Bag", "Fufu Flour Retail Pack", "Lafun Yam-Cassava Flour"]],
+      ["Beans & Legumes", "bag", ["Honey Beans Oloyin Bag", "White Cowpea Bag", "Brown Beans Bag", "Soya Beans Processor Bag", "Groundnut Kernel Sack", "Bambara Nut Bowl", "Pigeon Pea Bag"]],
+      ["Tubers", "crate", ["Benue Yam Tuber Crate", "Abuja Yam Set", "Sweet Potato Sack", "Irish Potato Sack", "Cocoyam Ede Basket", "Plantain Fingers Bunch", "Unripe Plantain Crate"]],
+      ["Fresh Produce", "basket", ["Mile 12 Tomato Basket", "Tatashe Pepper Basket", "Ata Rodo Pepper Paint", "Onion Sack", "Fresh Okra Basket", "Garden Egg Basket", "Cucumber Crate", "Carrot Bag", "Cabbage Sack", "Ugu Leaf Bundle", "Ewedu Leaf Bundle", "Waterleaf Bundle"]],
+      ["Soup Ingredients", "bag", ["Ground Egusi Daily Pack", "Ogbono Seed Pack", "Dry Crayfish Market Bag", "Stockfish Pieces Bag", "Smoked Catfish Pieces", "Dry Pepper Pack", "Locust Beans Iru Pack", "Banga Spice Mix", "Achi Soup Thickener", "Ofor Soup Thickener"]],
+      ["Oil", "keg", ["25L Red Palm Oil Fast Mover", "10L Palm Oil Keg", "25L Groundnut Oil Keg", "Soybean Oil Carton", "Vegetable Oil Carton", "Palm Kernel Oil Keg"]],
+      ["Protein", "carton", ["Egg Crate Daily Supply", "Frozen Chicken Carton Fast Mover", "Frozen Turkey Carton Fast Mover", "Titus Fish Carton", "Mackerel Fish Carton", "Dried Fish Market Bag", "Beef Cuts Daily Pack", "Goat Meat Party Pack"]],
+      ["Canned & Dry Goods", "carton", ["Noodles Carton Fast Mover", "Spaghetti Carton", "Macaroni Carton", "Tomato Paste Carton", "Sardine Carton", "Baked Beans Carton", "Sugar Bag", "Salt Bag"]]
+    ])
+  },
+  {
+    region: "africa",
+    country: "Africa",
+    sourceKey: "africa_high_demand_staples",
+    vendor: "African High-Demand Food Desk",
+    location: "West / East / Southern Africa",
+    marketTypes: ["regional wholesale", "cross-border market", "urban open market", "farm gate", "mill restock"],
+    items: produceGroupItems([
+      ["Africa High Demand", "bag", ["White Maize Meal", "Yellow Maize Grain", "Maize Flour Mill Bag", "Cassava Chips Bag", "Cassava Flour Bag", "Paddy Rice Bag", "Broken Rice Bag", "Sorghum Grain Bag", "Pearl Millet Bag", "Finger Millet Bag", "Teff Grain Bag", "Wheat Grain Bag", "Wheat Flour Bag"]],
+      ["Tubers", "crate", ["West African Yam Crate", "Sweet Potato Sack", "Taro Cocoyam Basket", "Matoke Banana Bunch", "Green Plantain Crate", "Irish Potato Sack"]],
+      ["Beans & Legumes", "bag", ["Cowpea Regional Bag", "Common Beans Bag", "Red Kidney Beans Bag", "Pigeon Pea Bag", "Green Gram Mung Bag", "Chickpea Bag", "Lentil Bag", "Soybean Bag", "Groundnut Bag"]],
+      ["Oil", "drum", ["Crude Palm Oil Drum", "Refined Palm Oil Drum", "Sunflower Oil Drum", "Groundnut Oil Drum", "Shea Butter Bulk Pack"]],
+      ["Protein", "carton", ["Dried Fish Regional Bag", "Smoked Tilapia Pack", "Frozen Fish Carton", "Egg Tray Regional", "Goat Meat Cuts", "Beef Cuts", "Chicken Carton"]],
+      ["Fresh Produce", "basket", ["Tomato Crate Regional", "Onion Sack Regional", "Fresh Chili Basket", "Okra Basket Regional", "Leafy Greens Bundle", "Cabbage Head Sack"]],
+      ["Diaspora Staples", "pack", ["Attieke Cassava Pack", "Fufu Flour Export Pack", "Banku Corn Dough Mix", "Kenkey Corn Dough Pack", "Injera Teff Mix", "Plantain Flour Pack", "Jollof Rice Party Mix"]]
+    ])
+  },
+  {
+    region: "nigeria",
+    country: "Nigeria Export",
+    sourceKey: "nigeria_export_raw_materials",
+    vendor: "Nigeria Export Raw Materials Desk",
+    location: "Export clusters and inspection depots",
+    marketTypes: ["export warehouse", "commodity market", "processor pickup", "farm gate", "port consolidation"],
+    items: produceGroupItems([
+      ["Export Raw Materials", "sack", ["Grade A Cocoa Beans", "Raw Cashew Nuts Export Bag", "Cashew Kernels Export Pack", "White Sesame Seeds Export Bag", "Brown Sesame Seeds Export Bag", "Split Dried Ginger Bag", "Whole Dried Ginger Bag", "Hibiscus Flower Zobo Export Bag", "Shea Nuts Export Sack", "Food Grade Shea Butter", "Gum Arabic Food Grade", "Dry Chili Pepper Export Sack", "Turmeric Finger Export Bag", "Moringa Leaf Powder", "Tigernut Flour Export Pack"]],
+      ["Grains", "sack", ["Export Sorghum Sack", "Export Millet Sack", "Soya Beans Export Bag", "Dried Cassava Chips Export Sack", "Cassava Starch Export Bag", "HQCF Cassava Flour Export Bag"]],
+      ["Oil", "sack", ["Palm Kernel Cake Export Sack", "Palm Kernel Nuts Export Sack", "Palm Kernel Oil Export Keg", "Groundnut Oil Export Keg", "Sesame Oil Export Bottle"]],
+      ["Nuts & Seeds", "sack", ["Groundnut Export Bag", "Melon Seed Egusi Export Pack", "Pumpkin Seed Export Pack", "Tiger Nut Export Bag", "Kola Nut Export Bag", "Bitter Kola Export Bag"]]
+    ])
+  },
+  {
+    region: "global",
+    country: "Abroad",
+    sourceKey: "global_fast_moving_food_commodities",
+    vendor: "Global Commodity & Diaspora Market",
+    location: "Global import, export, and diaspora food markets",
+    marketTypes: ["global commodity market", "import warehouse", "diaspora grocery", "processor pickup", "restaurant supply"],
+    items: produceGroupItems([
+      ["Global Commodities", "bag", ["Milling Wheat Bag", "Hard Red Wheat", "Feed Maize Bulk Bag", "Yellow Corn Commodity Bag", "Soybean Commodity Bag", "Soybean Meal Bag", "Soybean Oil Drum", "Raw Sugar Bag", "Refined Sugar Bag", "Basmati Rice Bag", "Jasmine Rice Bag", "Long Grain Rice Bag", "Parboiled Rice Bag", "Chickpea Bag", "Red Lentil Bag", "Kidney Beans Bag"]],
+      ["Export Raw Materials", "sack", ["Cocoa Beans Global Lot", "Cocoa Butter Block", "Cocoa Powder Bag", "Coffee Arabica Green Beans", "Coffee Robusta Green Beans", "Raw Cashew Nuts Global Lot", "Sesame Seed Global Bag", "Dried Ginger Global Bag", "Hibiscus Flower Global Bag"]],
+      ["Oil", "drum", ["Crude Palm Oil Global Drum", "Refined Palm Oil Global Drum", "Sunflower Oil Global Drum", "Canola Oil Drum", "Olive Oil Foodservice Tin"]],
+      ["Nuts & Seeds", "pack", ["Almonds Bulk Pack", "Pistachios Bulk Pack", "Walnuts Bulk Pack", "Sunflower Seeds Bulk Pack", "Pumpkin Seeds Bulk Pack", "Peanut Kernels Bulk Pack"]],
+      ["Diaspora Staples", "carton", ["Frozen Plantain Carton", "Yam Flour Diaspora Pack", "Garri Diaspora Sack", "Palm Oil Diaspora Keg", "Egusi Diaspora Pack", "Ogbono Diaspora Pack", "Stockfish Diaspora Pack", "Dried Crayfish Diaspora Pack", "Jollof Rice Restaurant Sack", "African Pepper Mix Carton"]]
+    ])
+  }
+];
+
+const allMarketProduceSources = marketProduceSources.concat(farmProduceExpansionSources, fastMovingProduceSources);
+
 const produceImageByCategory = {
   Grains: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
+  "Rice & Cereals": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
+  "Fast Moving Staples": "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80",
+  "Export Raw Materials": "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=600&q=80",
+  "Africa High Demand": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
+  "Global Commodities": "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=600&q=80",
+  "Diaspora Staples": "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80",
   Protein: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=600&q=80",
   "Live Protein": "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=600&q=80",
   Livestock: "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=600&q=80",
   Poultry: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=600&q=80",
   Oil: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
   Tubers: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80",
+  "Garri & Cassava": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80",
+  "Flours & Swallows": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
   "Fresh Produce": "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80",
   Fruits: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80",
   Vegetables: "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=600&q=80",
   Legumes: "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?auto=format&fit=crop&w=600&q=80",
+  "Beans & Legumes": "https://images.unsplash.com/photo-1515543904379-3d757afe72e4?auto=format&fit=crop&w=600&q=80",
+  "Nuts & Seeds": "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=600&q=80",
+  "Soup Ingredients": "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&w=600&q=80",
   Spices: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=600&q=80",
+  Condiments: "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&w=600&q=80",
   Dairy: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80",
+  "Frozen Foods": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=600&q=80",
+  "Canned & Dry Goods": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
   Imperishables: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
   "Same-day Perishables": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80"
 };
 
 const produceImageSources = [
+  { match: /raw food|foodstuff|farm produce|farm product|fresh harvested|market produce/, file: "Fresh harvested farm produce.jpg", credit: "Wikimedia Commons - Nigerian farm produce" },
+  { match: /rice.*beans|beans.*rice|badagry|basket.*rice/, file: "Ancient Basket way of Rice and Beans, Badagry Market.jpg", credit: "Wikimedia Commons - Badagry rice and beans" },
   { match: /ofada rice|ofada/, file: "Ofada Rice.jpg", credit: "Wikimedia Commons - Ofada rice" },
+  { match: /10kg.*rice|local rice|parboiled rice|stone-free rice|long grain rice|short grain rice|rice/, file: "Ancient Basket way of Rice and Beans, Badagry Market.jpg", credit: "Wikimedia Commons - Rice and beans market" },
   { match: /\bgarri\b|\bgari\b|\beba\b/, file: "Garri also called cassava flakes.jpg", credit: "Wikimedia Commons - Garri" },
+  { match: /cassava flakes|yellow garri|white garri|ijebu garri/, file: "Cassava Flakes (garri).jpg", credit: "Wikimedia Commons - Cassava flakes" },
   { match: /yellow garri/, file: "Sack of Yellow Garri.jpg", credit: "Wikimedia Commons - Yellow garri" },
   { match: /cassava|fufu/, file: "Cassava tubers.jpg", credit: "Wikimedia Commons - Cassava tubers" },
-  { match: /yam|water yam|tuber|pounded yam/, file: "Tubers of yam.jpg", credit: "Wikimedia Commons - Yam tubers" },
+  { match: /yam|water yam|tuber|pounded yam/, file: "Onions and yam.jpg", credit: "Wikimedia Commons - Nigerian yam and onions" },
   { match: /sweet potato|potatoes/, file: "Nigerian Sweet Potato.jpg", credit: "Wikimedia Commons - Sweet potato" },
   { match: /plantain|banana/, file: "Bunches of Plantain.jpg", credit: "Wikimedia Commons - Plantain" },
   { match: /egusi|melon seed/, file: "Egusi seeds.jpg", credit: "Wikimedia Commons - Egusi seeds" },
@@ -737,19 +903,23 @@ const produceImageSources = [
   { match: /groundnut oil|peanut oil/, image: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - cooking oil photo", source: "https://unsplash.com/s/photos/cooking-oil" },
   { match: /palm oil|red oil/, file: "Bottled Palm-oil.jpg", credit: "Wikimedia Commons - Palm oil" },
   { match: /sesame/, image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - seeds and spices photo", source: "https://unsplash.com/s/photos/sesame-seeds" },
-  { match: /beans|black eyed|kidney|pinto|soybeans|mung|lima|cannellini/, file: "Beans in the market.jpg", credit: "Wikimedia Commons - Beans in market" },
-  { match: /scotch bonnet|ata rodo|tatashe|pepper|tomato|tomatillo|jalapeno|chili|chilli/, file: "Tomato and pepper seller.jpg", credit: "Wikimedia Commons - Tomato and pepper seller" },
+  { match: /cocoa|cacao/, file: "Cocoa beans.jpg", credit: "Wikimedia Commons - cocoa beans" },
+  { match: /coffee|arabica|robusta/, image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - coffee beans photo", source: "https://unsplash.com/s/photos/coffee-beans" },
+  { match: /cowpea|oloyin|drum beans|white beans|red beans|beans|black eyed|kidney|pinto|soybeans|soybean|mung|lima|cannellini|lentil|chickpea|pigeon pea|bambara|african yam bean/, file: "Beans in the market.jpg", credit: "Wikimedia Commons - Beans in market" },
+  { match: /groundnut|peanut|cashew|tiger nut|walnut|kola|bitter kola|shea nut|kernel|cotton seed|sunflower seed|pumpkin seed|melon seed|seed/, image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - nuts and seeds photo", source: "https://unsplash.com/s/photos/nuts-seeds" },
+  { match: /scotch bonnet|ata rodo|tatashe|pepper|tomato|tomatillo|jalapeno|chili|chilli/, file: "PEPPER AND TOMATOES MARKET.jpg", credit: "Wikimedia Commons - Nigerian pepper and tomatoes market" },
   { match: /onion/, file: "Nigerian Onions.jpg", credit: "Wikimedia Commons - Nigerian onions" },
   { match: /okra|okro/, file: "Fresh okra for sale at market stall.jpg", credit: "Wikimedia Commons - Fresh okra" },
   { match: /ugu|pumpkin leaves/, file: "Ugu (pumkpin leaves).jpg", credit: "Wikimedia Commons - Ugu leaves" },
   { match: /waterleaf/, file: "Nigerian Waterleaf.jpg", credit: "Wikimedia Commons - Waterleaf" },
-  { match: /bitterleaf|scent leaf|ewedu|uziza|curry leaf|leaf|kale|spinach|sukuma|kontomire|bok choy|cabbage|lettuce/, file: "A view of a vegetable section of a market in North Central Nigeria.jpg", credit: "Wikimedia Commons - Vegetable market" },
+  { match: /bitterleaf|scent leaf|ewedu|uziza|oha|utazi|afang|editan|atama|okazi|jute|roselle|shoko|tete|amaranth|curry leaf|leaf|kale|spinach|sukuma|kontomire|bok choy|cabbage|lettuce/, file: "A view of a vegetable section of a market in North Central Nigeria.jpg", credit: "Wikimedia Commons - Vegetable market" },
+  { match: /broccoli|cauliflower|celery|green peas|runner beans|carrot|beetroot|cucumber|mushroom|zucchini|spring onion|salad/, image: "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - fresh vegetable photo", source: "https://unsplash.com/s/photos/fresh-vegetables" },
   { match: /crayfish|prawn|shrimp/, file: "Crayfish,a good food ingredients.jpg", credit: "Wikimedia Commons - Crayfish" },
   { match: /stockfish|dried cod/, file: "Stockfish,.jpg", credit: "Wikimedia Commons - Stockfish" },
-  { match: /catfish|dry fish|smoked fish/, file: "Smoked Dried Catfish jpg.jpg", credit: "Wikimedia Commons - Smoked dried catfish" },
+  { match: /catfish|dry fish|smoked fish|dried bonga|mangala/, file: "Smoked Dried Catfish jpg.jpg", credit: "Wikimedia Commons - Smoked dried catfish" },
   { match: /snail/, file: "Nigerian Snails.jpg", credit: "Wikimedia Commons - Nigerian snails" },
   { match: /garden egg|eggplant|aubergine/, file: "Yellow garden eggs.jpg", credit: "Wikimedia Commons - Garden eggs" },
-  { match: /mango/, file: "A big bowl of Fruits Salad 01.jpg", credit: "Wikimedia Commons - Nigerian fruit" },
+  { match: /mango|guava|soursop|agbalumo|star apple|tangerine|grapefruit|melon|cantaloupe|cashew apple|date|dabino|raisin|ube|dragon fruit|kiwi|pomegranate|berry|berries/, file: "A big bowl of Fruits Salad 01.jpg", credit: "Wikimedia Commons - Nigerian fruit" },
   { match: /live.*(broiler|layer|local chicken|chicken)|poultry/, image: "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - live poultry photo", source: "https://unsplash.com/s/photos/live-chicken-farm" },
   { match: /live.*turkey|turkey/, file: "Domestic turkey.jpg", credit: "Wikimedia Commons - domestic turkey" },
   { match: /live.*duck|duck/, image: "https://images.unsplash.com/photo-1555852095-64e7428df0fa?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - duck photo", source: "https://unsplash.com/s/photos/duck-farm" },
@@ -761,17 +931,22 @@ const produceImageSources = [
   { match: /frozen chicken|chicken cuts|broiler|layer|local chicken|chicken/, image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - chicken photo", source: "https://unsplash.com/s/photos/chicken-meat" },
   { match: /beef|cow meat/, image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - beef protein photo", source: "https://unsplash.com/s/photos/beef" },
   { match: /goat meat|mutton/, image: "https://images.unsplash.com/photo-1602470520998-f4a52199a3d6?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - raw protein photo", source: "https://unsplash.com/s/photos/raw-meat" },
-  { match: /smoked catfish|catfish|tilapia|trout|salmon|sardine|fish/, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - fish photo", source: "https://unsplash.com/s/photos/fish-market" },
-  { match: /rice|basmati|jasmine|paella/, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - rice grain photo", source: "https://unsplash.com/s/photos/rice-grain" },
-  { match: /corn|maize/, image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - corn photo", source: "https://unsplash.com/s/photos/corn" },
+  { match: /smoked catfish|catfish|tilapia|trout|salmon|sardine|mackerel|hake|croaker|panla|titus|fish|seafood|periwinkle|anchovies/, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - fish photo", source: "https://unsplash.com/s/photos/fish-market" },
+  { match: /rice|basmati|jasmine|paella|parboiled|stone-free|paddy|long grain|short grain|brown rice/, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - rice grain photo", source: "https://unsplash.com/s/photos/rice-grain" },
+  { match: /corn|maize|sweet corn|popcorn/, image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - corn photo", source: "https://unsplash.com/s/photos/corn" },
   { match: /avocado/, image: "https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - avocado photo", source: "https://unsplash.com/s/photos/avocado" },
   { match: /apple|pear|strawberr|blueberr|orange|lime|lemon|grape|fig|date|pineapple|papaya|pawpaw|watermelon|fruit/, image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - fresh fruit photo", source: "https://unsplash.com/s/photos/fresh-fruit" },
   { match: /cheese|milk|paneer|dairy/, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - dairy photo", source: "https://unsplash.com/s/photos/dairy" },
   { match: /chicken|beef|goat|trout|tilapia|salmon|sardine|protein/, image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - protein food photo", source: "https://unsplash.com/s/photos/fresh-meat" },
-  { match: /ginger|turmeric|garlic|basil|mint|lemongrass|galangal|paprika|spice|berbere|harissa|cilantro/, image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - spices photo", source: "https://unsplash.com/s/photos/spices" },
+  { match: /ginger|turmeric|garlic|basil|mint|lemongrass|galangal|paprika|spice|berbere|harissa|cilantro|hibiscus|zobo|gum arabic|moringa/, image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - spices photo", source: "https://unsplash.com/s/photos/spices" },
+  { match: /sugar|raw sugar|refined sugar/, image: "https://images.unsplash.com/photo-1581268497089-7a975fb491a3?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - sugar photo", source: "https://unsplash.com/s/photos/sugar" },
+  { match: /shea butter|shea/, image: "https://images.unsplash.com/photo-1612366398483-871ca7a1c236?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - shea butter style photo", source: "https://unsplash.com/s/photos/shea-butter" },
+  { match: /bouillon|salt|vinegar|soy sauce|fish sauce|hot sauce|ketchup|mayonnaise|peanut butter|jam|honey|syrup|paste|condiment/, image: "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - condiments and spices photo", source: "https://unsplash.com/s/photos/condiments" },
   { match: /bread|bakery/, image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - bread photo", source: "https://unsplash.com/s/photos/bread" },
   { match: /baby cereal|cereal/, image: "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - cereal grains photo", source: "https://unsplash.com/s/photos/cereal" },
   { match: /pasta|durum wheat/, image: "https://images.unsplash.com/photo-1556761223-4c4282c73f77?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - pasta pantry photo", source: "https://unsplash.com/s/photos/pasta" },
+  { match: /canned|tomato paste|puree|noodles|spaghetti|macaroni|custard|cornflakes|oatmeal|granola|yeast|dry goods|pantry/, image: "https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - grocery pantry photo", source: "https://unsplash.com/s/photos/pantry-food" },
+  { match: /frozen|freezer|fries|mixed vegetables|sausage/, image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - frozen protein photo", source: "https://unsplash.com/s/photos/frozen-food" },
   { match: /staff lunch|staff pack|market saver|hunger relief|balanced diet|restaurant raw|school kitchen|bulk groceries|foodstuff starter|family basket/, image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - bulk groceries photo", source: "https://unsplash.com/s/photos/grocery-box" },
   { match: /quinoa|oat|wheat|barley|couscous|teff|fonio|millet|sorghum|grain/, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80", credit: "Unsplash - grains photo", source: "https://unsplash.com/s/photos/grains" }
 ];
@@ -1070,12 +1245,12 @@ const liveProteinMarketLists = [
   }
 ];
 
-const globalMarketProduceCatalog = marketProduceSources.flatMap((source, sourceIndex) =>
+const globalMarketProduceCatalog = allMarketProduceSources.flatMap((source, sourceIndex) =>
   source.items.map(([name, category, unit], itemIndex) => {
     const localMarket = source.marketTypes[itemIndex % source.marketTypes.length];
     const photo = produceImageForItem(name, category, source);
     return {
-      id: `mkt_${slug(source.country)}_${slug(name)}`,
+      id: `mkt_${slug(source.sourceKey || source.country)}_${slug(name)}`,
       title: name,
       category,
       vendor: `${source.vendor} - ${localMarket}`,
@@ -1124,6 +1299,10 @@ productCatalog.forEach(applyProductImage);
 
 function slug(value) {
   return String(value || "item").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function produceGroupItems(groups) {
+  return groups.flatMap(([category, unit, names]) => names.map((name) => [name, category, unit]));
 }
 
 function commonsImage(fileName) {
@@ -1179,6 +1358,7 @@ function applyProductImage(item) {
   }
   item.photoCredit = item.photoCredit || photo.credit;
   item.photoSource = item.photoSource || photo.source;
+  item.galleryImages = productGalleryImages(item);
   return item;
 }
 
@@ -1190,24 +1370,39 @@ function applyPackageImage(item) {
   }
   packageItem.photoCredit = packageItem.photoCredit || photo.credit;
   packageItem.photoSource = packageItem.photoSource || photo.source;
+  packageItem.galleryImages = productGalleryImages(packageItem);
   return packageItem;
 }
 
 function producePrice(category, sourceIndex, itemIndex) {
   const base = {
     Grains: 36000,
+    "Rice & Cereals": 36000,
+    "Fast Moving Staples": 42000,
+    "Export Raw Materials": 86000,
+    "Africa High Demand": 48000,
+    "Global Commodities": 92000,
+    "Diaspora Staples": 64000,
     Protein: 68000,
     "Live Protein": 95000,
     Livestock: 180000,
     Poultry: 42000,
     Oil: 42000,
     Tubers: 28000,
+    "Garri & Cassava": 22000,
+    "Flours & Swallows": 28000,
     "Fresh Produce": 18000,
     Fruits: 22000,
     Vegetables: 14000,
+    "Soup Ingredients": 24000,
     Legumes: 30000,
+    "Beans & Legumes": 30000,
+    "Nuts & Seeds": 26000,
     Spices: 12000,
+    Condiments: 14500,
     Dairy: 26000,
+    "Frozen Foods": 46000,
+    "Canned & Dry Goods": 18000,
     Imperishables: 24000,
     "Same-day Perishables": 15000,
     "Healthy Meals": 34000
@@ -1563,6 +1758,14 @@ const seededActivePlans = [
   }
 ];
 
+function initialAppScreen() {
+  try {
+    return new URLSearchParams(window.location.search).get("screen") || localStorage.getItem("qmlScreen") || "home";
+  } catch {
+    return localStorage.getItem("qmlScreen") || "home";
+  }
+}
+
 let state = {
   summary: {},
   readiness: { services: [], blockers: [], launchReady: false },
@@ -1576,6 +1779,7 @@ let state = {
   authScreen: localStorage.getItem("qmlAuthScreen") || "splash",
   authComplete: localStorage.getItem("qmlAuthComplete") === "true",
   authSession: JSON.parse(localStorage.getItem("qmlAuthSession") || "null"),
+  pendingConfirmationEmail: sessionStorage.getItem("qmlPendingConfirmationEmail") || "",
   signupRole: localStorage.getItem("qmlSignupRole") || "customer",
   splashDragStart: 0,
   settingsToggles: JSON.parse(localStorage.getItem("qmlSettingsToggles") || "null") || {
@@ -1586,7 +1790,7 @@ let state = {
     bulkJobs: false
   },
   theme: localStorage.getItem("qmlTheme") || "light",
-  screen: localStorage.getItem("qmlScreen") || "home",
+  screen: initialAppScreen(),
   selectedPackageId: localStorage.getItem("qmlSelectedPackageId") || "",
   selectedProductId: localStorage.getItem("qmlSelectedProductId") || "prd_rice_25kg",
   selectedFinanceOpportunityId: localStorage.getItem("qmlSelectedFinanceOpportunityId") || "fin_1",
@@ -1597,6 +1801,8 @@ let state = {
   selectedUpdateFilter: localStorage.getItem("qmlSelectedUpdateFilter") || "All",
   selectedFoodTag: localStorage.getItem("qmlSelectedFoodTag") || "All Food",
   selectedMoreOptions: JSON.parse(localStorage.getItem("qmlSelectedMoreOptions") || "null") || [],
+  selectedProductUnits: JSON.parse(localStorage.getItem("qmlSelectedProductUnits") || "{}"),
+  selectedVendorOffers: JSON.parse(localStorage.getItem("qmlSelectedVendorOffers") || "{}"),
   adminSection: localStorage.getItem("qmlAdminSection") || "Overview",
   selectedAdminUserId: localStorage.getItem("qmlSelectedAdminUserId") || "usr_ada",
   searchQuery: localStorage.getItem("qmlSearchQuery") || "",
@@ -1617,6 +1823,7 @@ let state = {
   vendorChats: JSON.parse(localStorage.getItem("qmlVendorChats") || "{}"),
   biometricEnabled: localStorage.getItem("qmlBiometricEnabled") === "true",
   liveLocation: JSON.parse(localStorage.getItem("qmlLiveLocation") || "null") || null,
+  deliveryLocation: JSON.parse(localStorage.getItem("qmlDeliveryLocation") || "null") || null,
   referralRewards: JSON.parse(localStorage.getItem("qmlReferralRewards") || "null") || [
     { title: "Welcome referral", meta: "QML-ADA-4821 used by 2 friends", amount: 5000, status: "Earned" },
     { title: "Food basket bonus", meta: "Unlocks after next successful referral order", amount: 7500, status: "Pending" }
@@ -1646,12 +1853,19 @@ let state = {
   }
 };
 
-boot();
+// Register window handlers before the first render or asynchronous data load.
+queueMicrotask(boot);
 
 async function boot() {
   applyTheme();
-  await loadData();
   render();
+  try {
+    await loadData();
+    render();
+  } catch (error) {
+    console.warn("Marketplace data could not be loaded", error);
+    window.showToast("Unable to reach the server. Please try again shortly.");
+  }
 }
 
 async function loadData() {
@@ -1799,6 +2013,7 @@ function renderAuthScreen() {
     splash: renderSplashScreen,
     signin: renderSignInScreen,
     signup: renderSignUpScreen,
+    confirmEmail: renderConfirmationScreen,
     forgot: renderForgotPasswordScreen,
     verify: renderVerifyNumberScreen,
     otp: renderOtpScreen
@@ -1847,9 +2062,10 @@ function renderSignUpScreen() {
   const selected = signupRequirement(state.signupRole);
   return authForm("Create account", "Choose the account type first. Requirements and dashboard access change by role.", `
     ${socialAuthButtons("signup")}
-    <div class="signup-role-grid">
-      ${signupRoles().map((role) => `<button type="button" class="${state.signupRole === role.key ? "selected" : ""}" onclick="selectSignupRole('${role.key}')"><strong>${role.label}</strong><span>${role.short}</span></button>`).join("")}
-    </div>
+    <label for="signupRole">Account type</label>
+    <select id="signupRole" class="auth-select" onchange="selectSignupRole(this.value)">
+      ${signupRoles().map((role) => `<option value="${role.key}" ${state.signupRole === role.key ? "selected" : ""}>${role.label}</option>`).join("")}
+    </select>
     <section class="signup-requirement-card">
       <strong>${selected.title}</strong>
       <p>${selected.text}</p>
@@ -1857,14 +2073,24 @@ function renderSignUpScreen() {
     </section>
     <label>Full name</label>
     <input id="signupName" placeholder="Ada Okonkwo" />
-    <label>Email or phone number</label>
-    <input id="signupIdentifier" placeholder="+2348012345678" />
+    <label>Email address</label>
+    <input id="signupIdentifier" type="email" autocomplete="email" placeholder="you@example.com" />
     <label>Password</label>
     <input id="signupPassword" type="password" placeholder="Create password" />
     <label>Referral code</label>
     <input id="signupReferral" placeholder="Optional, e.g. QML-ADA-4821" />
     <button class="btn primary full" onclick="beginRoleSignup()">Create ${selected.label} account</button>
     <button class="text-link" onclick="goAuth('signin')">Already have an account?</button>
+  `);
+}
+
+function renderConfirmationScreen() {
+  return authForm("Check your inbox", "One quick step to activate your QML Foods account.", `
+    <div class="confirmation-mark" aria-hidden="true">✓</div>
+    <p class="confirmation-copy">We sent an activation link to <strong>${escapeHtml(state.pendingConfirmationEmail || "your email address")}</strong>. Open it to confirm your email, then come back here to sign in.</p>
+    <button class="btn primary full" onclick="resendSignupConfirmation()">Resend activation email</button>
+    <button class="btn ghost full" onclick="goAuth('signin')">Go to sign in</button>
+    <p class="auth-footnote">Check your spam folder if you do not see it. The link expires for your security.</p>
   `);
 }
 
@@ -1897,15 +2123,19 @@ function renderOtpScreen() {
 function authForm(title, subtitle, body) {
   return `
     <main class="auth-shell">
-      <div class="status-row"><span>9:41</span><span>||| WiFi Bat</span></div>
+      <div class="status-row"><span>QML FOODS</span><span>FRESH MARKETPLACE</span></div>
       <header class="auth-top"><button onclick="goAuth('splash')">&lt;</button><h1>${title}</h1><span></span></header>
       <section class="auth-card">
-        <div class="splash-logo small"><span>QML</span> FOOD</div>
+        <div class="auth-wordmark"><span class="auth-logo-mark">Q</span><span>QML Foods</span></div>
         <p>${subtitle}</p>
         ${body}
       </section>
     </main>
   `;
+}
+
+function escapeHtml(value) {
+  return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
 
 function socialAuthButtons(mode) {
@@ -2122,6 +2352,21 @@ function customPlanHistoryPanel() {
 
 function selectedActivePlan() {
   return activePlans().find((plan) => plan.id === state.selectedPlanId) || activePlans()[0];
+}
+
+function resetMarketplaceSearchState({ resetCategory = false } = {}) {
+  state.searchQuery = "";
+  state.selectedFoodTag = "All Food";
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
+  if (resetCategory) {
+    state.selectedCategory = "Fresh Produce";
+    localStorage.setItem("qmlSelectedCategory", state.selectedCategory);
+  }
+  localStorage.setItem("qmlSearchQuery", "");
+  localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
 }
 
 function applyPlanPayment(id, amount) {
@@ -2421,11 +2666,11 @@ function renderCustomPlanScreen() {
         ${formField("Budget", "150000", "customPlanBudget")}
         ${formField("Saving target", "50% before delivery", "customPlanTarget")}
         <label><span>Basket duration</span><select id="customPlanDuration">${optionSet(["1 month food basket", "2 months food basket", "3 months food basket"], "1 month food basket")}</select></label>
-        <label><span>Fixed foodstuff, quantity, and price</span><div class="custom-basket-options">${foods.map(customBasketOption).join("")}</div></label>
+        <label><span>Flexible raw foodstuff with nearby vendor prices</span><div class="custom-basket-options">${foods.map(customBasketOption).join("")}</div></label>
         <label><span>Payment plan</span><select id="customPlanPaymentOption">${paymentOptions.map((item) => `<option>${item}</option>`).join("")}</select></label>
         <section class="vendor-competition-card">
           <div class="split"><h2>Vendor price competition</h2><span class="pill good">Policy control</span></div>
-          <p>QML compares nearby vendor prices for the same basket and period, helping regularize prices while giving customers better offers.</p>
+          <p>QML compares nearby vendor prices within 2km for the same basket and period, helping regularize prices while giving customers better offers.</p>
           ${vendorCompetitionRows().map(([vendor, price, note], index) => `<button type="button" class="${index === 0 ? "selected" : ""}" onclick="selectBasketVendor(this, '${vendor}', ${price})"><strong>${vendor}</strong><span>${money.format(price)} - ${note}</span></button>`).join("")}
         </section>
         <input id="customPlanVendor" type="hidden" value="${vendorCompetitionRows()[0][0]}" />
@@ -2959,10 +3204,11 @@ function renderRoleSuccessScreen() {
 function renderSearchScreen() {
   const chips = Array.from(new Set(["All Food", ...state.foodTags, "Group buy", "Pay 50%", "Festive pack", "Verified vendor"]));
   const matches = state.searchQuery ? allMarketplaceItems().filter((item) => itemMatchesQuery(item, state.searchQuery)).slice(0, 8) : [];
+  const clearButton = state.searchQuery ? `<button class="search-clear-btn" onclick="clearSearchQuery()" aria-label="Clear search">Clear</button>` : "";
   return `
     <main class="mobile-frame">
       ${screenHeader("Search", "Find products, vendors, packages, and group buys.", "home")}
-      <div class="bigcart-search"><input id="searchInput" placeholder="Enter food name to search or create tag" value="${state.searchQuery || ""}" /><button class="filter-toggle" onclick="runSearch()" aria-label="Search"><i></i><i></i><i></i></button></div>
+      <div class="bigcart-search"><input id="searchInput" placeholder="Enter food name to search or create tag" value="${state.searchQuery || ""}" onkeydown="if(event.key === 'Enter') runSearch()" />${clearButton}<button class="filter-toggle" onclick="runSearch()" aria-label="Search"><i></i><i></i><i></i></button></div>
       <div class="filter-action-row"><button class="btn secondary" onclick="createFoodTagFromSearch()">Create food tag</button><button class="btn ghost" onclick="goToScreen('filter')">Filters</button></div>
       ${chipSection("Search History", chips)}
       ${chipSection("Discover more", ["Staff packages", "Lowest price", "Near me", "Fresh produce", "Bulk rice"])}
@@ -3301,6 +3547,8 @@ function renderProductReviewScreen() {
   const packages = allPackageProducts().slice(0, 5);
   const promos = allMarketplaceItems().filter((entry) => /discount|eligible|group|promo|festive/i.test(`${entry.tag} ${entry.category} ${entry.title}`)).slice(0, 4);
   const chatMessages = vendorChatMessages(item.vendor);
+  const bestOffer = selectedVendorOfferForItem(item);
+  const unitChoice = selectedUnitOptionForItem(item);
   return `
     <main class="mobile-frame product-review-frame">
       ${screenHeader("Product Reviews", "Details, comments, ratings, plans, packages, and offers.", "products")}
@@ -3309,15 +3557,19 @@ function renderProductReviewScreen() {
         <div>
           <span class="pill good">${item.tag || item.category}</span>
           <h1>${item.title}</h1>
-          <p>${item.vendor} - ${item.location}</p>
-          <strong>${money.format(Number(item.price))}<small> / ${item.unit}</small></strong>
+          <p>Sample offer: ${bestOffer.vendor} - ${bestOffer.location} - illustrative distance ${bestOffer.distanceKm.toFixed(1)}km</p>
+          <strong>${money.format(Number(bestOffer.price))}<small> / ${unitChoice.unit}</small></strong>
         </div>
       </section>
       <section class="vendor-writeup-card"><span>Vendor product information</span><p>${item.vendorInfo || item.writeup || `${item.title} is supplied by ${item.vendor}. Review product photos, pricing, unit size, delivery terms, and verified vendor status before adding to cart.`}</p></section>
+      ${unitSizeOptionsSection(item)}
+      ${vendorOfferSection(item)}
+      ${mealPlanSuggestionCard(item)}
 
       <section class="preview-action-panel">
         <button class="btn primary full" onclick="addProductToCart('${item.id}')"><span class="bag-icon" aria-hidden="true"></span>Add to cart</button>
         <button class="btn secondary full" onclick="addProductAndCheckout('${item.id}')">Continue checkout</button>
+        <button class="btn secondary full" onclick="createMealPlanFromItem('${item.id}', 'Pay twice')">Make monthly foodstuff plan</button>
         <button class="btn ghost full" onclick="startGroupForItem('${item.id}')">Create group & split price</button>
         <button class="btn ghost full" onclick="goToScreen('shop')">Add more products</button>
         <button class="btn ghost full" onclick="startVendorChat('${item.vendor}')">Chat vendor about delivery</button>
@@ -3525,7 +3777,39 @@ function renderShippingMethodScreen() {
 }
 
 function renderShippingInfoScreen() {
-  return formScreen("Shipping Information", "Confirm contact and delivery details.", "checkout", ["Receiver name", "Phone number", "Delivery address", "Nearest landmark"], "Continue", "shippingMethod");
+  const savedAddress = state.addresses.find((item) => item.status === "Default") || state.addresses[0] || { label: "Delivery address", address: "Lekki Phase 1, Lagos", status: "Pending" };
+  const location = state.deliveryLocation || state.liveLocation || { status: "Pending", area: state.onboarding.city || "Lagos", radius: "1-5km", lat: "6.5244", lng: "3.3792", updated: "Not captured" };
+  const address = state.deliveryLocation?.address || savedAddress.address || "Lekki Phase 1, Lagos";
+  return `
+    <main class="mobile-frame">
+      ${screenHeader("Shipping Information", "Confirm the delivery address, live map pin, and driver update before dispatch.", "checkout")}
+      <section class="location-hero delivery-location-card ${state.deliveryLocation ? "glow" : ""}">
+        <div class="map-grid delivery-map-grid">
+          <button class="vendor" onclick="selectDeliveryMapPin('delivery address')"><span>U</span><b>You</b></button>
+          <button class="logistics" onclick="selectDeliveryMapPin('driver')"><span>D</span><b>Driver</b></button>
+          <button class="food" onclick="selectDeliveryMapPin('vendor pickup')"><span>V</span><b>Vendor</b></button>
+          <button class="finance" onclick="selectDeliveryMapPin('confirmed stop')"><span>OK</span><b>Stop</b></button>
+        </div>
+        <h2>${state.deliveryLocation ? "Delivery pin confirmed" : "Confirm delivery pin"}</h2>
+        <p>${address} - ${location.area || "Lagos"} - ${location.lat || "6.5244"}, ${location.lng || "3.3792"} - updated ${location.updated || "Not captured"}</p>
+        <div class="delivery-status-grid">
+          <span><b>${state.deliveryLocation ? "Verified" : "Pending"}</b><small>Address proof</small></span>
+          <span><b>${state.deliveryLocation?.driverUpdated ? "Sent" : "Waiting"}</b><small>Driver update</small></span>
+          <span><b>${location.radius || "1-5km"}</b><small>Pickup radius</small></span>
+        </div>
+      </section>
+      <section class="auth-card form-card shipping-info-card">
+        <label>Receiver name</label><input id="deliveryReceiver" placeholder="Receiver name" value="${state.deliveryLocation?.receiver || "Ada Okonkwo"}" />
+        <label>Phone number</label><input id="deliveryPhone" placeholder="Phone number" value="${state.deliveryLocation?.phone || "+234 801 234 5678"}" />
+        <label>Delivery address</label><input id="deliveryAddress" placeholder="Delivery address" value="${address}" />
+        <label>Nearest landmark</label><input id="deliveryLandmark" placeholder="Nearest landmark" value="${state.deliveryLocation?.landmark || "Nearest market gate"}" />
+        <div class="delivery-action-grid">
+          <button class="btn ghost full" onclick="captureDeliveryLocation()">Capture live map location</button>
+          <button class="btn primary full" onclick="confirmDeliveryAddress()">Confirm address and update driver</button>
+        </div>
+      </section>
+    </main>
+  `;
 }
 
 function renderOrderSuccessScreen() {
@@ -3907,16 +4191,17 @@ function compactPackageCard(item) {
 }
 
 function productCard(item) {
+  const nearest = nearbyVendorOffersForItem(item, 1)[0];
   return `
     <article class="product-card interactive-card" role="button" tabindex="0" onclick="openItemDetail('${item.id}')" onkeydown="cardKeyOpen(event, '${item.id}')">
       <button class="heart-btn product-heart" onclick="event.stopPropagation(); toggleFavorite('${item.id}')" aria-label="Save ${item.title}">${favoriteIcon(item.id)}</button>
       <div class="product-image" style="background-image:url('${item.image}')"><span class="pill">${item.tag}</span></div>
       <div class="product-body">
         <h3>${item.title}</h3>
-        <p>${item.vendor} - ${item.location}</p>
-        <small class="delivery-note">${item.deliveryRule || (/fresh|fruit|vegetable|dairy|perishable/i.test(`${item.category} ${item.tag}`) ? "Perishable - same day delivery" : "Location-based delivery")}</small>
+        <p>Sample offer: ${nearest.vendor} - ${nearest.location}</p>
+        <small class="delivery-note">Illustrative distance ${nearest.distanceKm.toFixed(1)}km - live availability pending</small>
         ${item.photoCredit ? `<small class="photo-note">${item.photoCredit}</small>` : ""}
-        <div class="split"><strong class="price">${money.format(item.price)}</strong><span class="muted">/${item.unit}</span></div>
+        <div class="split"><strong class="price">${money.format(nearest.price)}</strong><span class="muted">/${nearest.unit}</span></div>
         <div class="product-action">
           <button onclick="event.stopPropagation(); addProductToCart('${item.id}')"><span class="bag-icon" aria-hidden="true"></span>Add to cart</button>
         </div>
@@ -3947,6 +4232,134 @@ function productCommentCard([name, rating, text]) {
         <p>${text}</p>
       </div>
     </article>
+  `;
+}
+
+function productUnitOptions(item) {
+  const text = itemImageLookupText(item).toLowerCase();
+  const currentUnit = item.unit || "unit";
+  const make = (unit, multiplier, label = unit) => ({ unit, multiplier, label });
+  let options = [make(currentUnit, 1, `Current market unit (${currentUnit})`)];
+
+  if (/rice|garri|cassava flakes|beans|cowpea|maize|corn|millet|sorghum|grain|flour|semolina|semovita|egusi|ogbono|groundnut|seed/.test(text)) {
+    options = [
+      make("1kg", 0.05),
+      make("2kg", 0.1),
+      make("5kg", 0.22),
+      make("10kg", 0.42),
+      make("25kg bag", /50kg/.test(text) ? 0.52 : 1),
+      make("50kg bag", /50kg/.test(text) ? 1 : 1.9),
+      make("paint bucket", 0.34)
+    ];
+  } else if (/palm oil|groundnut oil|oil|milk|honey/.test(text)) {
+    options = [make("1L", 0.22), make("2L", 0.42), make("5L keg", 1), make("10L keg", 1.95), make("25L keg", 4.6)];
+  } else if (/yam|plantain|banana|potato|tuber|cocoyam/.test(text)) {
+    options = [make("1 piece", 0.18), make("3 pieces", 0.48), make("1 bunch", 1), make("small basket", 1.85), make("market sack", 3.2)];
+  } else if (/tomato|pepper|onion|okra|garden egg|vegetable|leaf|cabbage|carrot|cucumber|fruit|mango|orange|pineapple|watermelon/.test(text)) {
+    options = [make("1kg", 0.16), make("paint bucket", 0.48), make("small basket", 0.75), make("basket", 1), make("crate", 1.35), make("sack", 2.2)];
+  } else if (/chicken|fish|catfish|beef|goat|egg|protein|crayfish|stockfish|snail|poultry|turkey/.test(text)) {
+    options = [make("1kg", 0.5), make("2kg", 1), make("5kg", 2.35), make("crate", /egg/.test(text) ? 1 : 1.8), make("whole piece", 1.25)];
+  }
+
+  const hasCurrent = options.some((option) => option.unit.toLowerCase() === currentUnit.toLowerCase());
+  const normalized = hasCurrent ? options : [make(currentUnit, 1, `Current market unit (${currentUnit})`), ...options];
+  return Array.from(new Map(normalized.map((option) => {
+    const photo = produceImageForItem(`${option.unit} ${item.title} ${item.category}`, item.category, item);
+    return [option.unit, { ...option, image: photo.image, credit: photo.credit }];
+  })).values());
+}
+
+function selectedUnitOptionForItem(item) {
+  const options = productUnitOptions(item);
+  const savedUnit = item.id ? state.selectedProductUnits?.[item.id] : "";
+  return options.find((option) => option.unit === savedUnit) || options[0] || { unit: item.unit || "unit", multiplier: 1, image: item.image || item.image_url || "" };
+}
+
+function unitSizeOptionsSection(item) {
+  const options = productUnitOptions(item);
+  const selected = selectedUnitOptionForItem(item);
+  return `
+    <section class="unit-size-card">
+      <div class="split"><h2>Flexible market unit</h2><span class="pill good">${selected.unit}</span></div>
+      <p>Pick the size or local market measurement you want, then compare vendors within 2km before adding to cart.</p>
+      <div class="unit-size-grid">
+        ${options.slice(0, 8).map((option) => `
+          <button type="button" class="${option.unit === selected.unit ? "selected" : ""}" onclick="selectProductUnit('${item.id}', '${option.unit}')">
+            <i style="background-image:url('${option.image || item.image || ""}')" aria-hidden="true"></i>
+            <span><strong>${option.unit}</strong><small>${money.format(Math.max(500, Math.round(Number(item.price || 12000) * option.multiplier / 100) * 100))} market estimate</small></span>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function selectedVendorOfferIndex(item) {
+  return Math.max(0, Number(state.selectedVendorOffers?.[item.id]?.index || 0));
+}
+
+function selectedVendorOfferForItem(item) {
+  const offers = nearbyVendorOffersForItem(item);
+  return offers[selectedVendorOfferIndex(item)] || offers[0];
+}
+
+function vendorOfferSection(item) {
+  const offers = nearbyVendorOffersForItem(item);
+  const selectedIndex = selectedVendorOfferIndex(item);
+  return `
+    <section class="vendor-offer-card">
+      <div class="split"><h2>Vendor price comparison</h2><span class="pill">Sample offers</span></div>
+      <p>Sample prices and distances. Live vendor availability and the 2km delivery limit still need location verification.</p>
+      <div class="vendor-offer-list">
+        ${offers.map((offer, index) => `
+          <button type="button" class="${index === selectedIndex ? "selected" : ""}" onclick="selectProductVendorOffer('${item.id}', ${index})">
+            <span><strong>${offer.vendor}</strong><small>${offer.location} - illustrative distance ${offer.distanceKm.toFixed(1)}km</small></span>
+            <b>${money.format(offer.price)}<small>/${offer.unit}</small></b>
+          </button>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function mealPlanSuggestionForItem(item) {
+  const text = `${item.title} ${item.category} ${item.tag}`.toLowerCase();
+  const staple = /rice|garri|yam|cassava|maize|grain|flour|plantain|potato/.test(text);
+  const protein = /fish|chicken|beef|goat|egg|protein|crayfish|stockfish|catfish/.test(text);
+  const vegetable = /tomato|pepper|onion|okra|leaf|vegetable|spinach|cabbage|carrot/.test(text);
+  const soup = /egusi|ogbono|crayfish|stockfish|palm oil|soup|banga|achi|ofor/.test(text);
+  const baseItems = staple
+    ? [`${item.title} for main meals`, "Beans or cowpea for protein", "Palm oil or groundnut oil", "Tomato, pepper, and onion mix", "Leafy vegetables", "Fish, egg, or chicken protein"]
+    : protein
+      ? [`${item.title} protein rotation`, "Rice or garri staple", "Beans or legumes", "Fresh tomatoes and pepper", "Leafy vegetables", "Fruit for snacks"]
+      : vegetable || soup
+        ? [`${item.title} soup/vegetable base`, "Rice, garri, or yam staple", "Beans or cowpea", "Palm oil", "Crayfish or fish protein", "Seasoning and onions"]
+        : [`${item.title}`, "Rice or garri staple", "Beans or legumes", "Vegetable mix", "Protein option", "Oil and soup ingredients"];
+  const budget = staple ? 185000 : protein ? 235000 : soup ? 165000 : vegetable ? 150000 : 180000;
+  return {
+    title: `${item.title} monthly balanced basket`,
+    budget,
+    items: baseItems,
+    daily: Math.ceil(budget / 30),
+    half: Math.ceil(budget / 2),
+    note: "Estimated starter basket, not a personalized nutrition assessment. Adjust quantities, household needs and current vendor prices before buying."
+  };
+}
+
+function mealPlanSuggestionCard(item) {
+  const suggestion = mealPlanSuggestionForItem(item);
+  return `
+    <section class="meal-plan-ai-card">
+      <div class="split"><h2>Monthly food basket estimate</h2><span class="pill good">${money.format(suggestion.budget)}</span></div>
+      <p>${suggestion.note}</p>
+      <div class="meal-plan-grid">
+        ${suggestion.items.map((entry) => `<span>${entry}</span>`).join("")}
+      </div>
+      <div class="meal-plan-payments">
+        <button type="button" onclick="createMealPlanFromItem('${item.id}', 'Pay twice')"><strong>Pay twice</strong><span>${money.format(suggestion.half)} x 2 installments</span></button>
+        <button type="button" onclick="createMealPlanFromItem('${item.id}', 'Daily contribution')"><strong>Contribute daily</strong><span>${money.format(suggestion.daily)} per day for 30 days</span></button>
+      </div>
+    </section>
   `;
 }
 
@@ -4142,7 +4555,7 @@ function mergeDefaultFoodTags(savedTags) {
 }
 
 function regionalMarketFoodTags() {
-  const generated = marketProduceSources.flatMap((source) => [
+  const generated = allMarketProduceSources.flatMap((source) => [
     source.country,
     `${source.country} local`,
     `${source.country} market`,
@@ -4194,14 +4607,7 @@ function userMarketRegion() {
 }
 
 function itemAllowedForUserRegion(item) {
-  const market = userMarketRegion();
-  const region = String(item.region || "africa").toLowerCase();
-  const text = marketItemText(item);
-  if (market === "nigeria") return true;
-  if (market === "europe") return ["europe", "global", "imported"].includes(region) || /europe|united kingdom|italy|spain|france|germany|international market/.test(text);
-  if (market === "africa") return ["africa", "nigeria", "global", "local", "imported"].includes(region) || /africa|ghana|kenya|ethiopia|morocco|nigeria|international market/.test(text);
-  if (market === "asia") return ["asia", "global", "imported"].includes(region) || /asia|india|china|thailand|japan|korea|vietnam|indonesia|philippines|international market/.test(text);
-  if (market === "america") return ["america", "global", "imported"].includes(region) || /america|united states|usa|mexico|brazil|peru|canada|colombia|argentina|international market/.test(text);
+  if (item) return true;
   return true;
 }
 
@@ -4225,7 +4631,7 @@ function marketplaceProducts() {
     vendorInfo: item.vendorInfo || item.note
   }));
   const knownIds = new Set(apiProducts.concat(vendorProducts).map((item) => item.id));
-  return localFirstItems(apiProducts.concat(vendorProducts, productCatalog.filter((item) => !knownIds.has(item.id))).map(applyProductImage).filter(itemAllowedForUserRegion));
+  return localFirstItems(apiProducts.concat(vendorProducts, productCatalog.filter((item) => !knownIds.has(item.id))).map(applyProductImage));
 }
 
 function apiProductAsMarketplaceItem(item) {
@@ -4269,8 +4675,7 @@ function marketplacePackages() {
   const knownIds = new Set(vendorPackages.map((item) => item.id));
   return vendorPackages
     .concat(state.packages.concat(extraPackages).filter((item) => !knownIds.has(item.id)))
-    .map(applyPackageImage)
-    .filter(itemAllowedForUserRegion);
+    .map(applyPackageImage);
 }
 
 function itemMatchesQuery(item, query) {
@@ -5105,16 +5510,134 @@ function imageUrlFromPhoto(photo) {
   return typeof photo === "string" ? "" : photo?.url || "";
 }
 
-function itemGalleryImages(item) {
-  const base = item.image || item.image_url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80";
+function imageUrlFromProduceSource(entry) {
+  return entry.image || commonsImage(entry.file);
+}
+
+function galleryFallbacksForItem(item, text) {
+  const category = String(item.category || "").toLowerCase();
+  const joined = `${text} ${category}`;
+  const fallbacks = [];
+  const add = (images) => fallbacks.push(...images);
+
+  if (/rice|cereal|grain|maize|corn|wheat|oat|barley|sorghum|millet|fonio|quinoa|flour|semolina|semovita|poundo|amala|masa/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1517673132405-a56a62b18caf?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/cassava|garri|gari|fufu|lafun|akpu|tapioca|yam|cocoyam|taro|potato|tuber|breadfruit/.test(joined)) {
+    add([
+      commonsImage("Cassava tubers.jpg"),
+      commonsImage("Tubers of yam.jpg"),
+      "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/beans|legume|cowpea|soy|pigeon|bambara|groundnut|peanut|cashew|nut|seed|egusi|sesame|kola|kernel/.test(joined)) {
+    add([
+      commonsImage("Beans in the market.jpg"),
+      commonsImage("Egusi seeds.jpg"),
+      "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/cocoa|cacao/.test(joined)) {
+    add([
+      commonsImage("Cocoa beans.jpg"),
+      commonsImage("Cacao beans.jpg"),
+      "https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/tomato|pepper|onion|okra|garden egg|eggplant|leaf|vegetable|spinach|lettuce|cabbage|carrot|cucumber|broccoli|mushroom|zucchini|salad/.test(joined)) {
+    add([
+      commonsImage("Tomato and pepper seller.jpg"),
+      commonsImage("A view of a vegetable section of a market in North Central Nigeria.jpg"),
+      "https://images.unsplash.com/photo-1597362925123-77861d3fbac7?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/fruit|mango|banana|plantain|orange|apple|grape|lemon|lime|pineapple|papaya|watermelon|melon|avocado|guava|berry|date|pear|kiwi|pomegranate/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=900&q=80",
+      commonsImage("A big bowl of Fruits Salad 01.jpg"),
+      "https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/fish|catfish|tilapia|mackerel|hake|croaker|seafood|crayfish|prawn|shrimp|stockfish|snail|protein|chicken|turkey|beef|goat|ram|lamb|pork|egg/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/milk|yoghurt|yogurt|butter|margarine|cheese|wara|dairy/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/oil|palm|groundnut oil|soybean oil|sesame oil|coconut oil|sunflower|canola|shea/.test(joined)) {
+    add([
+      commonsImage("Bottled Palm-oil.jpg"),
+      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1620706857370-e1b9770e8bb1?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/spice|ginger|turmeric|garlic|curry|thyme|clove|nutmeg|pepper|cumin|coriander|paprika|hibiscus|zobo|basil|mint|condiment|sauce|ketchup|mayonnaise|honey|jam/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1606914469633-bd39206ea739?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  if (/canned|dry goods|noodle|spaghetti|macaroni|pasta|cereal|custard|oatmeal|granola|tomato paste|puree|frozen|grocery|packaged/.test(joined)) {
+    add([
+      "https://images.unsplash.com/photo-1588964895597-cfccd6e2dbf9?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80"
+    ]);
+  }
+
+  return fallbacks;
+}
+
+function productGalleryImages(item) {
+  const text = itemImageLookupText(item).toLowerCase();
+  const basePhoto = produceImageForItem(text, item.category, item);
   const uploaded = Array.isArray(item.photos) ? item.photos.map(imageUrlFromPhoto).filter(Boolean) : [];
-  const extras = [
-    base,
-    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",
+  const saved = Array.isArray(item.galleryImages) ? item.galleryImages : [];
+  const matched = produceImageSources
+    .filter((entry) => entry.match.test(text))
+    .map(imageUrlFromProduceSource);
+  const images = [
+    ...saved,
+    ...uploaded,
+    item.image,
+    item.image_url,
+    basePhoto.image,
+    ...matched,
+    ...galleryFallbacksForItem(item, text),
+    produceImageByCategory[item.category],
+    produceImageByCategory["Fresh Produce"],
     "https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=900&q=80",
-    "https://images.unsplash.com/photo-1506368249639-73a05d6f6488?auto=format&fit=crop&w=900&q=80"
-  ];
-  return Array.from(new Set(uploaded.concat(extras).filter(Boolean))).slice(0, 5);
+    "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80"
+  ].filter(Boolean);
+
+  return Array.from(new Set(images)).slice(0, 5);
+}
+
+function itemGalleryImages(item) {
+  return productGalleryImages(item);
 }
 
 function imageGallery(item, title = "Product photos") {
@@ -5247,9 +5770,10 @@ function handleAuthContinuation(response) {
   }
   if (response?.requiresConfirmation || response?.session?.status === "pending_confirmation") {
     state.authSession = response.session || null;
-    state.authScreen = "signin";
+    state.authScreen = "confirmEmail";
+    sessionStorage.setItem("qmlPendingConfirmationEmail", state.pendingConfirmationEmail || "");
     localStorage.setItem("qmlAuthSession", JSON.stringify(state.authSession));
-    localStorage.setItem("qmlAuthScreen", "signin");
+    localStorage.setItem("qmlAuthScreen", "confirmEmail");
     renderMobileApp();
     setTimeout(() => window.showToast(response.message || "Check your email or phone to confirm your account."), 0);
     return true;
@@ -5556,6 +6080,7 @@ function addRoleActivity(role, message) {
 function persistCustomerData() {
   localStorage.setItem("qmlFavorites", JSON.stringify(state.favorites));
   localStorage.setItem("qmlAddresses", JSON.stringify(state.addresses));
+  localStorage.setItem("qmlDeliveryLocation", JSON.stringify(state.deliveryLocation));
   localStorage.setItem("qmlCards", JSON.stringify(state.cards));
   localStorage.setItem("qmlUserReviews", JSON.stringify(state.userReviews));
   localStorage.setItem("qmlOrderHistory", JSON.stringify(state.orderHistory));
@@ -5690,25 +6215,50 @@ function favoriteIcon(id) {
 }
 
 function cartTotal(items) {
-  return items.reduce((sum, item) => sum + Number(item.price || 0) * itemQuantity(item.id), 0);
+  return items.reduce((sum, item) => sum + cartLinePrice(item) * itemQuantity(item.id), 0);
 }
 
 function itemQuantity(id) {
   return Math.max(1, Number(state.cartQuantities[id] || 1));
 }
 
+function cartLinePrice(item) {
+  if (item.kind === "product") return Number(selectedVendorOfferForItem(item)?.price || item.price || 0);
+  return Number(item.price || 0);
+}
+
+function cartOrderLine(item) {
+  const offer = item.kind === "product" ? selectedVendorOfferForItem(item) : null;
+  return {
+    id: item.id,
+    title: item.title,
+    quantity: itemQuantity(item.id),
+    price: cartLinePrice(item),
+    unit: offer?.unit || item.unit || "package",
+    vendor: offer?.vendor || item.vendor || null,
+    vendorLocation: offer?.location || item.location || null,
+    offerStatus: offer ? "sample" : "catalog"
+  };
+}
+
 function cartRow(item) {
-  const meta = item.kind === "product" ? `${item.category} - ${item.vendor}` : `${item.category} - ${item.vendor || "Verified vendor"}`;
+  const offer = item.kind === "product" ? selectedVendorOfferForItem(item) : null;
+  const unit = item.kind === "product" ? selectedUnitOptionForItem(item).unit : item.unit || "package";
+  const meta = item.kind === "product"
+    ? `${item.category} - ${offer.vendor} - ${offer.distanceKm.toFixed(1)}km away`
+    : `${item.category} - ${item.vendor || "Verified vendor"}`;
+  const price = cartLinePrice(item);
   return `
-    <article class="cart-row">
+    <article class="cart-row interactive-card" role="button" tabindex="0" onclick="openItemDetail('${item.id}')" onkeydown="cardKeyOpen(event, '${item.id}')">
       <div>
         <strong>${item.title}</strong>
-        <span>${meta} - ${money.format(Number(item.price))} x ${itemQuantity(item.id)}</span>
+        <span>${meta} - ${money.format(price)} / ${unit} x ${itemQuantity(item.id)}</span>
+        ${item.kind === "product" ? `<small>Tap to review product, change unit, or switch nearby vendor.</small>` : ""}
       </div>
       <div class="cart-row-actions">
-        <button class="btn ghost" onclick="changeCartQuantity('${item.id}', -1)">-</button>
-        <button class="btn ghost" onclick="changeCartQuantity('${item.id}', 1)">+</button>
-        <button class="btn ghost" onclick="removeFromCart('${item.id}')">Remove</button>
+        <button class="btn ghost" onclick="event.stopPropagation(); changeCartQuantity('${item.id}', -1)">-</button>
+        <button class="btn ghost" onclick="event.stopPropagation(); changeCartQuantity('${item.id}', 1)">+</button>
+        <button class="btn ghost" onclick="event.stopPropagation(); removeFromCart('${item.id}')">Remove</button>
       </div>
     </article>
   `;
@@ -5756,38 +6306,83 @@ function checkRow(title) {
 
 function customBasketFoodOptions() {
   return [
-    ["Rice", "10kg", 24000],
-    ["Beans", "5kg", 14500],
-    ["Garri", "5kg", 7500],
-    ["Palm oil", "5L", 11200],
-    ["Groundnut oil", "5L", 16000],
-    ["Yam", "1 tuber", 4500],
-    ["Plantain", "1 bunch", 6500],
-    ["Tomatoes", "1 basket", 18500],
-    ["Onions", "1 paint bucket", 6200],
-    ["Egusi", "2kg", 9800],
-    ["Crayfish", "1kg", 8700],
-    ["Chicken", "2kg", 15500],
-    ["Fish", "2kg", 13200],
-    ["Pepper", "1 paint bucket", 7800]
+    basketFood("Rice", "10kg", 24000, "Rice & Cereals"),
+    basketFood("Beans", "5kg", 14500, "Beans & Legumes"),
+    basketFood("Garri", "5kg", 7500, "Garri & Cassava"),
+    basketFood("Palm oil", "5L", 11200, "Oil"),
+    basketFood("Groundnut oil", "5L", 16000, "Oil"),
+    basketFood("Yam", "1 tuber", 4500, "Tubers"),
+    basketFood("Plantain", "1 bunch", 6500, "Tubers"),
+    basketFood("Tomatoes", "1 basket", 18500, "Fresh Produce"),
+    basketFood("Onions", "1 paint bucket", 6200, "Fresh Produce"),
+    basketFood("Egusi", "2kg", 9800, "Soup Ingredients"),
+    basketFood("Crayfish", "1kg", 8700, "Soup Ingredients"),
+    basketFood("Chicken", "2kg", 15500, "Protein"),
+    basketFood("Fish", "2kg", 13200, "Protein"),
+    basketFood("Pepper", "1 paint bucket", 7800, "Fresh Produce")
   ];
 }
 
-function customBasketOption([name, quantity, price], index) {
+function basketFood(name, quantity, price, category) {
+  const photo = produceImageForItem(`${quantity} ${name} Nigeria raw foodstuff`, category, { country: "Nigeria", region: "nigeria" });
+  return {
+    name,
+    quantity,
+    price,
+    category,
+    image: photo.image,
+    photoCredit: photo.credit,
+    vendors: nearbyVendorOffersForItem({ title: `${quantity} ${name}`, category, price, unit: quantity, vendor: "QML market", location: state.liveLocation?.area || state.onboarding.city || "Lagos" })
+  };
+}
+
+function customBasketOption(food, index) {
+  const bestOffer = food.vendors[0] || { price: food.price, vendor: "Nearby verified vendor", location: state.onboarding.city || "Lagos", distanceKm: 1.2 };
+  const offerRows = food.vendors.slice(0, 3).map((offer) => `
+    <span class="vendor-offer-line">
+      <b>${offer.vendor}</b>
+      <small>${money.format(offer.price)} - ${offer.location} - ${offer.distanceKm.toFixed(1)}km</small>
+    </span>
+  `).join("");
   return `
-    <button type="button" class="custom-basket-option ${index < 5 ? "selected" : ""}" data-name="${name}" data-quantity="${quantity}" data-price="${price}" onclick="toggleCustomBasketOption(this)">
-      <span><strong>${name}</strong><small>${quantity}</small></span>
-      <b>${money.format(price)}</b>
-    </button>
+    <article class="custom-basket-option ${index < 5 ? "selected" : ""}" role="button" tabindex="0" data-name="${food.name}" data-quantity="${food.quantity}" data-price="${bestOffer.price}" data-vendor="${bestOffer.vendor}" data-location="${bestOffer.location}" data-distance="${bestOffer.distanceKm}" onclick="toggleCustomBasketOption(this)" onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleCustomBasketOption(this); }">
+      <i style="background-image:url('${food.image}')" aria-hidden="true"></i>
+      <span class="basket-food-copy"><strong>${food.name}</strong><small>${food.quantity} - best nearby offer ${money.format(bestOffer.price)}</small>${offerRows}</span>
+      <b>${bestOffer.distanceKm.toFixed(1)}km</b>
+    </article>
   `;
 }
 
-function vendorCompetitionRows() {
+function nearbyVendorOffersForItem(item, count = 4) {
+  const unitChoice = item.id ? selectedUnitOptionForItem(item) : { unit: item.unit || "unit", multiplier: 1 };
+  const basePrice = Math.max(1000, Number(item.price || 12000) * Number(unitChoice.multiplier || 1));
+  const unit = unitChoice.unit || item.unit || "unit";
+  const area = state.liveLocation?.area || state.onboarding.city || "Lagos";
+  const vendors = [
+    ["Mile 12 Fresh Hub", "Ketu market lane", 0.6, -0.07],
+    ["Mainland Grain Depot", "Ojota pickup point", 1.1, -0.02],
+    ["Northern Fresh Market", `${area} raw food desk`, 1.5, 0.03],
+    ["QML Verified Retailers", "Neighbourhood grocery cluster", 1.9, 0.08]
+  ];
+  return vendors.slice(0, count).map(([vendor, location, distanceKm, delta], index) => ({
+    vendor,
+    location,
+    distanceKm,
+    unit,
+    price: Math.max(500, Math.round(basePrice * (1 + Number(delta)) / 100) * 100),
+    note: index === 0 ? "cheapest within 2km" : index === 1 ? "more stock nearby" : "verified nearby option"
+  }));
+}
+
+function vendorCompetitionRows(item = null) {
+  if (item) {
+    return nearbyVendorOffersForItem(item).map((offer) => [offer.vendor, offer.price, `${offer.location} - ${offer.distanceKm.toFixed(1)}km - ${offer.note}`]);
+  }
   return [
-    ["Mile 12 Fresh Hub", 142000, "best basket price, same-day produce"],
-    ["Mainland Grain Depot", 149500, "strong grains and oils pricing"],
-    ["Northern Fresh Market", 153000, "bulk discount available"],
-    ["QML Verified Retailers", 158500, "balanced stock across all items"]
+    ["Mile 12 Fresh Hub", 142000, "0.6km - best basket price, same-day produce"],
+    ["Mainland Grain Depot", 149500, "1.1km - strong grains and oils pricing"],
+    ["Northern Fresh Market", 153000, "1.5km - bulk discount available"],
+    ["QML Verified Retailers", 158500, "1.9km - balanced stock across all items"]
   ];
 }
 
@@ -5817,7 +6412,7 @@ function formScreen(title, subtitle, backScreen, fields, action, nextScreen, for
 }
 
 async function api(path, options = {}) {
-  const response = await fetch(path, { headers: requestHeaders(options) });
+  const response = await fetch(path, { headers: requestHeaders(options), signal: AbortSignal.timeout(15000) });
   if (!response.ok) throw new Error(`API failed: ${path}`);
   return response.json();
 }
@@ -5880,10 +6475,11 @@ function roleWalletId(role) {
 }
 
 function normalizeUser(user) {
+  user = user || JSON.parse(localStorage.getItem("qmlUserProfile") || "null") || {};
   return {
-    name: user.full_name || user.name,
-    city: user.city,
-    country: user.country,
+    name: user.full_name || user.name || "Customer",
+    city: user.city || state.onboarding.city,
+    country: user.country || state.onboarding.country,
     walletBalance: Number(user.wallet_balance ?? user.walletBalance ?? 0),
     qmlScore: Number(user.qml_score ?? user.qmlScore ?? 0),
     creditLimit: Number(user.credit_limit ?? user.creditLimit ?? 0),
@@ -5892,6 +6488,7 @@ function normalizeUser(user) {
 }
 
 function normalizePlan(plan) {
+  plan = plan || {};
   return {
     title: plan.title,
     total: Number(plan.total_amount ?? plan.total ?? 0),
@@ -6111,9 +6708,15 @@ window.beginRoleSignup = async function beginRoleSignup() {
   state.onboarding.purpose = signupPurposeForRole(state.signupRole);
   localStorage.setItem("qmlSignupRole", state.signupRole);
   const name = inputValue("signupName", "Ada Okonkwo");
-  const identifier = inputValue("signupIdentifier", "+2348012345678");
+  const identifier = inputValue("signupIdentifier", "ada@example.com");
   const referralCode = inputValue("signupReferral", "");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+    window.showToast("Enter a valid email address to activate your account.");
+    return;
+  }
   try {
+    state.pendingConfirmationEmail = identifier;
+    sessionStorage.setItem("qmlPendingConfirmationEmail", identifier);
     const bundle = await postApi("/api/auth/signup", {
       name,
       identifier,
@@ -6130,6 +6733,19 @@ window.beginRoleSignup = async function beginRoleSignup() {
   } catch (error) {
     console.warn(error);
     window.showToast(error.message || "Could not create account");
+  }
+};
+
+window.resendSignupConfirmation = async function resendSignupConfirmation() {
+  if (!state.pendingConfirmationEmail) {
+    window.showToast("Enter the signup email address first.");
+    return;
+  }
+  try {
+    const response = await postApi("/api/auth/resend-confirmation", { email: state.pendingConfirmationEmail });
+    window.showToast(response.message || "If the signup is pending, a new activation email is on its way.");
+  } catch (error) {
+    window.showToast(error.message || "Could not resend the activation email.");
   }
 };
 
@@ -6273,6 +6889,7 @@ window.openItemDetail = function openItemDetail(id) {
 };
 
 window.cardKeyOpen = function cardKeyOpen(event, id) {
+  if (event.target !== event.currentTarget) return;
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     window.openItemDetail(id);
@@ -6286,6 +6903,7 @@ window.openPlanDetail = function openPlanDetail(id) {
 };
 
 window.cardKeyOpenPlan = function cardKeyOpenPlan(event, id) {
+  if (event.target !== event.currentTarget) return;
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     window.openPlanDetail(id);
@@ -6376,12 +6994,70 @@ window.selectBasketVendor = function selectBasketVendor(button, vendor, price) {
   document.querySelector("#customPlanVendorPrice").value = String(price);
 };
 
+window.selectProductUnit = function selectProductUnit(id, unit) {
+  state.selectedProductUnits = { ...state.selectedProductUnits, [id]: unit };
+  localStorage.setItem("qmlSelectedProductUnits", JSON.stringify(state.selectedProductUnits));
+  renderMobileApp();
+  setTimeout(() => window.showToast(`${unit} selected. Nearby vendor prices updated.`), 0);
+};
+
+window.selectProductVendorOffer = function selectProductVendorOffer(id, index) {
+  const item = allMarketplaceItems().find((entry) => entry.id === id) || selectedMarketplaceItem();
+  const offer = nearbyVendorOffersForItem(item)[index] || nearbyVendorOffersForItem(item)[0];
+  state.selectedVendorOffers = { ...state.selectedVendorOffers, [id]: { index, selectedAt: Date.now() } };
+  localStorage.setItem("qmlSelectedVendorOffers", JSON.stringify(state.selectedVendorOffers));
+  renderMobileApp();
+  setTimeout(() => window.showToast(`${offer.vendor} selected at ${money.format(offer.price)} within ${offer.distanceKm.toFixed(1)}km`), 0);
+};
+
+window.createMealPlanFromItem = function createMealPlanFromItem(id, paymentOption = "Pay twice") {
+  const item = allMarketplaceItems().find((entry) => entry.id === id) || selectedMarketplaceItem();
+  const suggestion = mealPlanSuggestionForItem(item);
+  const offer = selectedVendorOfferForItem(item);
+  const unitChoice = selectedUnitOptionForItem(item);
+  const plan = {
+    id: `ai_monthly_plan_${Date.now()}`,
+    title: suggestion.title,
+    total: suggestion.budget,
+    paid: 0,
+    status: "custom_active",
+    cadence: paymentOption,
+    paymentOptions: paymentOption,
+    duration: "1 month food basket",
+    vendor: offer.vendor,
+    vendorPrice: suggestion.budget,
+    priceVariance: 0,
+    items: suggestion.items,
+    selectedFoods: suggestion.items.map((name, index) => ({
+      name,
+      quantity: index === 0 ? unitChoice.unit || "monthly portion" : "monthly portion",
+      price: index === 0 ? offer.price : Math.round(suggestion.budget / suggestion.items.length),
+      vendor: offer.vendor,
+      location: offer.location,
+      distanceKm: offer.distanceKm
+    })),
+    image: item.image || item.image_url || productGalleryImages(item)[0]
+  };
+  state.customPlans.unshift(plan);
+  persistCustomerData();
+  goToRoleSuccess({
+    title: "Monthly foodstuff plan created",
+    text: `${plan.title} is ready for ${money.format(plan.total)} with ${paymentOption}. ${paymentOption === "Daily contribution" ? `${money.format(suggestion.daily)} per day for 30 days.` : `${money.format(suggestion.half)} in two installments.`}`,
+    dashboard: "plans",
+    nextScreen: "plans",
+    nextLabel: "View monthly plan"
+  });
+};
+
 window.createCustomPlan = function createCustomPlan() {
   const budget = Number(inputValue("customPlanBudget", "150000").replace(/[^\d.]/g, "")) || 150000;
   const selectedFoods = Array.from(document.querySelectorAll(".custom-basket-option.selected")).map((button) => ({
     name: button.dataset.name,
     quantity: button.dataset.quantity,
-    price: Number(button.dataset.price || 0)
+    price: Number(button.dataset.price || 0),
+    vendor: button.dataset.vendor || "Nearby verified vendor",
+    location: button.dataset.location || state.onboarding.city || "Lagos",
+    distanceKm: Number(button.dataset.distance || 1.2)
   }));
   const selectedFoodNames = selectedFoods.map((item) => `${item.name} (${item.quantity})`);
   const paymentOption = document.querySelector("#customPlanPaymentOption")?.value || "Weekly";
@@ -6642,10 +7318,19 @@ function vendorChatMessages(vendor) {
 }
 
 window.selectFoodTag = function selectFoodTag(tag) {
+  if (tag === "All Food") {
+    resetMarketplaceSearchState();
+    renderMobileApp();
+    return;
+  }
   state.selectedFoodTag = tag;
-  state.searchQuery = tag === "All Food" ? "" : tag;
+  state.searchQuery = tag;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
   localStorage.setItem("qmlSearchQuery", state.searchQuery);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   renderMobileApp();
 };
 
@@ -6660,7 +7345,13 @@ window.createFoodTag = function createFoodTag() {
     localStorage.setItem("qmlFoodTags", JSON.stringify(state.foodTags));
   }
   state.selectedFoodTag = tag;
+  state.searchQuery = tag;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSelectedFoodTag", tag);
+  localStorage.setItem("qmlSearchQuery", tag);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   window.showToast(`${tag} tag added`);
   renderMobileApp();
 };
@@ -6676,8 +7367,12 @@ window.createFoodTagFromSearch = function createFoodTagFromSearch() {
     localStorage.setItem("qmlFoodTags", JSON.stringify(state.foodTags));
   }
   state.selectedFoodTag = state.searchQuery;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
   localStorage.setItem("qmlSearchQuery", state.searchQuery);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   renderMobileApp();
   setTimeout(() => window.showToast(`${state.searchQuery} saved as food tag`), 0);
 };
@@ -6689,15 +7384,75 @@ window.applyFoodFilter = function applyFoodFilter() {
 };
 
 window.clearFoodFilter = function clearFoodFilter() {
-  state.selectedFoodTag = "All Food";
-  state.selectedFilter = "All";
-  state.selectedMoreOptions = [];
-  state.searchQuery = "";
-  localStorage.setItem("qmlSelectedFoodTag", "All Food");
-  localStorage.setItem("qmlSelectedFilter", "All");
-  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify([]));
-  localStorage.setItem("qmlSearchQuery", "");
+  resetMarketplaceSearchState({ resetCategory: true });
   renderMobileApp();
+};
+
+window.selectDeliveryMapPin = function selectDeliveryMapPin(pin) {
+  window.showToast(`${pin} selected on delivery map`);
+};
+
+window.captureDeliveryLocation = function captureDeliveryLocation() {
+  const saveLocation = (coords = {}, status = "Captured") => {
+    const address = inputValue("deliveryAddress", state.deliveryLocation?.address || state.addresses[0]?.address || "Lekki Phase 1, Lagos");
+    state.deliveryLocation = {
+      status,
+      area: state.onboarding.city || "Lagos",
+      radius: state.liveLocation?.radius || "1-5km",
+      lat: coords.latitude ? Number(coords.latitude).toFixed(5) : (state.liveLocation?.lat || "6.5244"),
+      lng: coords.longitude ? Number(coords.longitude).toFixed(5) : (state.liveLocation?.lng || "3.3792"),
+      address,
+      receiver: inputValue("deliveryReceiver", state.deliveryLocation?.receiver || "Ada Okonkwo"),
+      phone: inputValue("deliveryPhone", state.deliveryLocation?.phone || "+234 801 234 5678"),
+      landmark: inputValue("deliveryLandmark", state.deliveryLocation?.landmark || "Nearest market gate"),
+      driverUpdated: false,
+      updated: new Date().toLocaleTimeString()
+    };
+    persistCustomerData();
+    renderMobileApp();
+    setTimeout(() => window.showToast("Delivery map location captured"), 0);
+  };
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => saveLocation(position.coords, "Captured"),
+      () => saveLocation({}, "Approximate"),
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
+    );
+    return;
+  }
+
+  saveLocation({}, "Approximate");
+};
+
+window.confirmDeliveryAddress = function confirmDeliveryAddress() {
+  const address = inputValue("deliveryAddress", state.deliveryLocation?.address || "Lekki Phase 1, Lagos");
+  const receiver = inputValue("deliveryReceiver", state.deliveryLocation?.receiver || "Ada Okonkwo");
+  const phone = inputValue("deliveryPhone", state.deliveryLocation?.phone || "+234 801 234 5678");
+  const landmark = inputValue("deliveryLandmark", state.deliveryLocation?.landmark || "Nearest market gate");
+  state.deliveryLocation = {
+    ...(state.deliveryLocation || state.liveLocation || {}),
+    status: "Verified",
+    area: state.deliveryLocation?.area || state.liveLocation?.area || state.onboarding.city || "Lagos",
+    radius: state.deliveryLocation?.radius || state.liveLocation?.radius || "1-5km",
+    lat: state.deliveryLocation?.lat || state.liveLocation?.lat || "6.5244",
+    lng: state.deliveryLocation?.lng || state.liveLocation?.lng || "3.3792",
+    address,
+    receiver,
+    phone,
+    landmark,
+    driverUpdated: true,
+    updated: new Date().toLocaleTimeString()
+  };
+  const existing = state.addresses.find((item) => item.address === address);
+  if (existing) existing.status = "Default";
+  else state.addresses.unshift({ label: "Delivery", address, status: "Default" });
+  state.addresses = state.addresses.map((item) => ({ ...item, status: item.address === address ? "Default" : item.status === "Default" ? "Verified" : item.status }));
+  state.systemEvents = [{ title: "Delivery address updated", meta: `${receiver} - ${address} - driver notified`, status: "verified" }, ...state.systemEvents].slice(0, 20);
+  localStorage.setItem("qmlSystemEvents", JSON.stringify(state.systemEvents));
+  persistCustomerData();
+  window.showToast("Driver updated with confirmed delivery address");
+  window.goToScreen("shippingMethod");
 };
 
 window.enableLiveLocation = function enableLiveLocation() {
@@ -6910,10 +7665,22 @@ window.submitKycProfile = function submitKycProfile() {
 };
 
 window.selectSearchChip = function selectSearchChip(chip) {
+  if (chip === "All Food") {
+    resetMarketplaceSearchState();
+    renderMobileApp();
+    return;
+  }
   state.selectedCategory = categories.includes(chip) ? chip : state.selectedCategory;
   state.searchQuery = chip;
+  state.selectedFoodTag = categories.includes(chip) ? "All Food" : chip;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSearchQuery", chip);
+  localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   if (categories.includes(chip)) {
+    localStorage.setItem("qmlSelectedCategory", state.selectedCategory);
     window.goToScreen("products");
     return;
   }
@@ -6922,16 +7689,40 @@ window.selectSearchChip = function selectSearchChip(chip) {
 };
 
 window.runSearch = function runSearch() {
-  state.searchQuery = inputValue("searchInput", "");
+  state.searchQuery = inputValue("searchInput", "").trim();
+  if (!state.searchQuery) {
+    resetMarketplaceSearchState();
+    renderMobileApp();
+    setTimeout(() => window.showToast("Search cleared"), 0);
+    return;
+  }
+  state.selectedFoodTag = state.searchQuery;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSearchQuery", state.searchQuery);
+  localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   renderMobileApp();
 };
 
 window.runAssistedSearch = function runAssistedSearch(mode) {
   state.searchQuery = mode === "image" ? "Fresh produce" : "Rice";
+  state.selectedFoodTag = state.searchQuery;
+  state.selectedFilter = "All";
+  state.selectedMoreOptions = [];
   localStorage.setItem("qmlSearchQuery", state.searchQuery);
+  localStorage.setItem("qmlSelectedFoodTag", state.selectedFoodTag);
+  localStorage.setItem("qmlSelectedFilter", state.selectedFilter);
+  localStorage.setItem("qmlSelectedMoreOptions", JSON.stringify(state.selectedMoreOptions));
   renderMobileApp();
   setTimeout(() => window.showToast(`${mode === "image" ? "Image" : "Voice"} search matched ${state.searchQuery}`), 0);
+};
+
+window.clearSearchQuery = function clearSearchQuery() {
+  resetMarketplaceSearchState();
+  renderMobileApp();
+  setTimeout(() => window.showToast("Search cleared"), 0);
 };
 
 window.contactSupport = function contactSupport() {
@@ -7068,8 +7859,7 @@ window.resendVerificationCode = function resendVerificationCode() {
 
 window.clearSearchHistory = function clearSearchHistory(title) {
   if (/history/i.test(title)) {
-    state.searchQuery = "";
-    localStorage.removeItem("qmlSearchQuery");
+    resetMarketplaceSearchState();
     renderMobileApp();
     return;
   }
@@ -7356,7 +8146,7 @@ window.confirmPayment = async function confirmPayment() {
         metadata: {
           paymentMethod: state.paymentMethod,
           paymentOption: state.selectedPaymentOption,
-          items: items.map((item) => ({ id: item.id, title: item.title, quantity: item.quantity || 1, price: Number(item.price || 0) }))
+          items: items.map(cartOrderLine)
         }
       });
       createdOrderId = created.order?.id || createdOrderId;
@@ -7371,7 +8161,8 @@ window.confirmPayment = async function confirmPayment() {
       }
     } catch (error) {
       console.warn(error);
-      window.showToast("Checkout saved locally; backend sync pending");
+      window.showToast("Payment could not be confirmed. Your cart has been kept; check order status before retrying.");
+      return;
     }
     if (state.paymentMethod === "wallet") {
       addWalletLedger("user", "Order payment", `${state.selectedPaymentOption} checkout`, -charge);
@@ -7417,7 +8208,8 @@ window.confirmPayment = async function confirmPayment() {
       }
     } catch (error) {
       console.warn(error);
-      window.showToast("Plan payment saved locally; backend sync pending");
+      window.showToast("Contribution could not be confirmed. Check your payment status before retrying.");
+      return;
     }
     applyPlanPayment(plan.id, payAmount);
     if (state.paymentMethod === "wallet") {

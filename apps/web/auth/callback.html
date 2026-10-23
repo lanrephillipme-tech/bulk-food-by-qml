@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'">
+  <title>Account confirmation | QML Foods</title>
+  <link rel="stylesheet" href="/auth/callback.css">
+  <script src="/auth/callback.js" defer></script>
+</head>
+<body>
+  <main>
+    <p class="brand">QML Foods</p>
+    <h1 id="heading">Account confirmation</h1>
+    <p id="message" role="status">Open the confirmation or password reset link from your email.</p>
+    <form id="reset-form" hidden>
+      <label for="password">New password</label>
+      <input id="password" type="password" autocomplete="new-password" minlength="8" required>
+      <label for="confirm-password">Confirm password</label>
+      <input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+      <button type="submit">Update password</button>
+    </form>
+    <nav aria-label="Continue to QML">
+      <a class="primary" href="bulkfoodqml://auth/confirm">Open QML app</a>
+      <a href="/app">Continue on the website</a>
+    </nav>
+    <p class="hint">If the app does not open, launch it from your home screen and sign in.</p>
+  </main>
+</body>
+</html>
