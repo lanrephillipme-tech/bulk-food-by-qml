@@ -9,7 +9,12 @@ let recoveryToken = "";
 // Keep returned credentials out of history, links, storage, and subsequent requests.
 history.replaceState(null, "", window.location.pathname);
 const error = params.get("error_description") || query.get("error_description") || params.get("error") || query.get("error");
-if (error) {
+if (query.get("flow") === "social") {
+  completeSocialSignIn(params, query).catch((failure) => {
+    heading.textContent = "Sign-in could not be completed";
+    message.textContent = failure.message || "Return to QML and try again.";
+  });
+} else if (error) {
   heading.textContent = "This link could not be verified";
   message.textContent = "The link may have expired or already been used. Request a new link and try again.";
 } else if (params.get("access_token") && params.get("type") === "recovery") {
@@ -22,6 +27,37 @@ if (error) {
   message.textContent = authType === "signup"
     ? "Your QML Foods account is activated. Open QML and sign in with your email and password."
     : "Return to QML to continue securely.";
+}
+
+async function completeSocialSignIn(hashParams, queryParams) {
+  const providerError = hashParams.get("error_description") || queryParams.get("error_description") || hashParams.get("error") || queryParams.get("error");
+  if (providerError) throw new Error(providerError);
+  const code = queryParams.get("code");
+  const codeVerifier = sessionStorage.getItem("qmlOAuthCodeVerifier") || "";
+  sessionStorage.removeItem("qmlOAuthCodeVerifier");
+  if (!code || !codeVerifier) throw new Error("The secure sign-in code was missing or expired. Return to QML and try again.");
+  heading.textContent = "Finishing sign-in";
+  message.textContent = "Your account is being securely connected to QML Foods.";
+  const response = await fetch("/api/auth/provider/complete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      code,
+      codeVerifier,
+      mode: queryParams.get("mode"),
+      role: queryParams.get("role"),
+      referralCode: queryParams.get("referralCode")
+    })
+  });
+  const bundle = await response.json();
+  if (!response.ok) throw new Error(bundle.error || "Could not finish provider sign-in.");
+  sessionStorage.setItem("qmlPendingOAuthBundle", JSON.stringify({
+    bundle,
+    mode: queryParams.get("mode") === "signup" ? "signup" : "signin",
+    role: queryParams.get("role") || "customer",
+    referralCode: queryParams.get("referralCode") || ""
+  }));
+  window.location.replace("/app");
 }
 
 form.addEventListener("submit", async (event) => {

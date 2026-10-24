@@ -2914,29 +2914,6 @@ body {
   padding: 28px clamp(18px, 6vw, 36px);
 }
 
-.auth-wordmark {
-  align-items: center;
-  color: #178342;
-  display: flex;
-  font-size: 19px;
-  font-weight: 900;
-  gap: 9px;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.auth-logo-mark {
-  align-items: center;
-  background: #178342;
-  border-radius: 50%;
-  color: #fff;
-  display: inline-flex;
-  font-size: 18px;
-  height: 34px;
-  justify-content: center;
-  width: 34px;
-}
-
 .confirmation-mark {
   align-items: center;
   background: #eaf5ed;
@@ -2960,10 +2937,6 @@ body {
   color: #657168 !important;
   font-size: 12px !important;
   margin: 14px 0 0 !important;
-}
-
-.auth-card .auth-wordmark {
-  text-align: center;
 }
 
 .auth-card p {
@@ -6686,3 +6659,82 @@ body, button, input, select, textarea { transition: background-color .2s ease, b
     width: 38px;
   }
 }
+
+/* QML authentication uses the supplied charcoal and solid-yellow reference. */
+body.is-auth-screen { background: #151715; color: #f5f5f2; }
+body.is-auth-screen > .catalog-entry-banner { display: none !important; }
+.auth-shell { --auth-brand: #f3f400; background: #151715; color: #f5f5f2; margin: 0 auto; max-width: 560px; min-height: 100vh; min-width: 0; padding: 16px 20px 36px; width: 100%; }
+.auth-shell .status-row { color: #f3f3ef; font-size: 12px; font-weight: 700; letter-spacing: 0; margin: 0; }
+.auth-status-icons { font-size: 12px; letter-spacing: 2px; }
+.auth-top { grid-template-columns: 36px minmax(0, 1fr) 36px; margin: 30px 0 20px; min-height: 54px; }
+.auth-top button { color: #f4f4ef; font-size: 23px; }
+.auth-top h1 { color: #f5f5f2; font-size: 22px; line-height: 1.25; overflow-wrap: anywhere; }
+.auth-card { background: transparent; border: 0; border-radius: 0; box-shadow: none; min-width: 0; padding: 0 0 20px; }
+.auth-logo-image { background: transparent; display: block; flex: 0 0 auto; height: 156px; margin: 0 auto 2px; object-fit: contain; width: 156px; }
+.auth-wordmark { color: #6cc51d; display: block; font-size: 21px; font-weight: 800; line-height: 1.2; margin: 0 auto 14px; text-align: center; }
+.auth-card > p:first-child { color: #babcb6; font-size: 13px; margin: 0 auto 22px; max-width: 310px; overflow-wrap: anywhere; text-align: center; }
+.auth-shell .auth-mode-switch { background: #30312f; border-radius: 999px; display: grid; gap: 4px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 0 22px; padding: 4px; }
+.auth-mode-switch button { background: transparent; border: 0; border-radius: 999px; color: #f0f0eb; min-height: 42px; padding: 8px 12px; }
+.auth-mode-switch button.active { background: #f3f400; color: #171815; font-weight: 800; }
+.auth-card label { color: #d8d9d4; font-size: 12px; font-weight: 500; margin: 14px 0 7px; }
+.auth-card input, .auth-card .auth-select { background-color: #171917; border: 1px solid #343632; border-radius: 999px; color: #f6f6f1; min-height: 50px; outline: none; padding: 0 16px; width: 100%; }
+.auth-card #signupReferral + .btn.primary { margin-top: 14px; }
+.auth-card .auth-send-code { margin-top: 14px; }
+.auth-card input::placeholder { color: #858780; opacity: 1; }
+.auth-card input:focus, .auth-card .auth-select:focus { border-color: #f3f400; box-shadow: 0 0 0 2px rgba(243,244,0,.16); }
+.auth-shell .auth-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f3f400' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+.auth-card select option { background: #20221f; color: #f5f5f2; }
+.auth-shell .btn.primary, .auth-shell .btn.primary:hover, .auth-shell .btn.primary:focus-visible { background: #f3f400; background-image: none; border: 0; border-radius: 999px; box-shadow: none; color: #171815; min-height: 52px; }
+.auth-shell .btn.ghost { background: transparent; border: 1px solid #3a3c38; border-radius: 999px; color: #f2f2ec; min-height: 48px; }
+.auth-shell .text-link { background: transparent; color: #f3f400; }
+.auth-shell .text-link.right { margin: 2px 0 10px auto; }
+.auth-account-prompt { align-items: center; color: #c5c6c0 !important; display: flex; font-size: 12px !important; gap: 4px; justify-content: center; margin: 22px 0 0 !important; max-width: none !important; }
+.auth-account-prompt .text-link { font-size: inherit; font-weight: 800; min-height: 0; padding: 2px; }
+.auth-social-break { margin-top: 18px; }
+.auth-shell .auth-divider { color: #b8bab4; font-size: 11px; font-weight: 500; margin: 18px 0; text-transform: none; }
+.auth-shell .auth-divider::before, .auth-shell .auth-divider::after { background: #383a36; }
+.auth-shell .social-auth-grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 0; }
+.auth-shell .social-auth-grid button { background: transparent; border: 1px solid #393b37; border-radius: 999px; color: #f6f6f2; gap: 9px; justify-content: center; min-height: 48px; min-width: 0; padding: 8px 12px; }
+.auth-shell .social-auth-grid b { background: transparent; color: inherit; flex: 0 0 20px; font-size: 17px; height: 22px; width: 20px; }
+.auth-shell .signup-requirement-card { background: #20221f; border: 1px solid #333530; border-radius: 12px; }
+.auth-shell .signup-requirement-card strong, .auth-shell .signup-requirement-card p { color: #dedfd9; text-align: left; }
+.auth-shell .signup-requirement-card span { background: #2c2e2a; border-radius: 999px; color: #f3f400; }
+.auth-shell .confirmation-mark { background: #242620; border-color: #45462d; color: #f3f400; }
+.auth-shell .confirmation-copy, .auth-shell .auth-footnote { color: #c5c6c0 !important; }
+.auth-shell .otp-row input { border-radius: 12px; min-width: 0; padding: 0; }
+@media (max-width: 420px) { .auth-shell { padding: 14px 18px 28px; } .auth-top { margin: 26px 0 18px; } .auth-card { padding: 0 0 20px; } }
+
+/* Light QML green product-color variant for the auth flow. */
+body.is-auth-screen { background: #f4f6f3; color: #202820; }
+.auth-shell { --auth-brand: #6cc51d; background: #f4f6f3; color: #202820; }
+.auth-shell .status-row { color: #625b6b; }
+.auth-top button, .auth-top h1 { color: #211c29; }
+.auth-card { color: #211c29; }
+.auth-card > p:first-child { color: #696272; }
+.signup-requirement-card { position: relative; padding-right: 42px; }
+.signup-requirement-dismiss { align-items: center; background: transparent; border: 0; border-radius: 50%; color: #536052; cursor: pointer; display: inline-flex; font-size: 22px; height: 32px; justify-content: center; line-height: 1; position: absolute; right: 8px; top: 8px; width: 32px; }
+.signup-requirement-dismiss:hover, .signup-requirement-dismiss:focus-visible { background: #eaf2e7; }
+.auth-mode-switch { background: #e9eee7 !important; }
+.auth-mode-switch button { color: #364238; }
+.auth-mode-switch button.active { background: #6cc51d; color: #17301c; }
+.auth-card label { color: #303a32; }
+.auth-card input, .auth-card .auth-select { background-color: #fff; border-color: #d9e2d7; color: #202820; }
+.auth-card input::placeholder { color: #85808c; }
+.auth-shell .auth-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236cc51d' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+.auth-card select option { background: #fff; color: #202820; }
+.auth-shell .btn.primary, .auth-shell .btn.primary:hover, .auth-shell .btn.primary:focus-visible { background: #6cc51d; color: #17301c; }
+.auth-shell .btn.ghost { border-color: #d8e1d6; color: #28332a; }
+.auth-shell .text-link { color: #178342; }
+.auth-shell .auth-divider { color: #727b73; }
+.auth-shell .auth-divider::before, .auth-shell .auth-divider::after { background: #dce3da; }
+.auth-shell .social-auth-grid button { border-color: #d8e1d6; color: #292f2a; }
+.auth-shell .social-auth-grid b { color: #292f2a; }
+.auth-shell .social-auth-grid b svg { display: block; height: 18px; width: 18px; }
+.auth-shell .signup-requirement-card { background: #fff; border-color: #dce4da; }
+.auth-shell .signup-requirement-card strong, .auth-shell .signup-requirement-card p { color: #374239; }
+.auth-shell .signup-requirement-card span { background: #eef8e8; color: #178342; }
+.auth-account-prompt { color: #625b6b !important; }
+.auth-shell .confirmation-mark { background: #eef8e8; border-color: #d5ebc7; color: #178342; }
+.auth-shell .confirmation-copy, .auth-shell .auth-footnote { color: #625b6b !important; }
+.auth-shell .signup-otp-row { gap: 8px; margin: 18px 0 16px; }
+.auth-shell .signup-otp-input { border-radius: 12px; font-size: 22px; font-weight: 800; min-width: 0; padding: 0; text-align: center; }

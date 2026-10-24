@@ -22,6 +22,10 @@ test("malformed, credential-bearing and non-HTTPS production values are ignored"
   assert.equal(authEmailRedirectUrl({}), callback);
 });
 
+test("an explicit callback URL is not appended to itself", () => {
+  assert.equal(authEmailRedirectUrl({ NODE_ENV: "production", AUTH_REDIRECT_URL: callback }), callback);
+});
+
 test("explicit local development remains supported", () => {
   assert.equal(authEmailRedirectUrl({ NODE_ENV: "development", AUTH_REDIRECT_URL: "http://localhost:4000/app" }), "http://localhost:4000/auth/callback.html");
   assert.equal(authRedirectUrl({ NODE_ENV: "production", AUTH_REDIRECT_URL: "https://example.com/app#secret" }), "https://example.com/app");
@@ -68,7 +72,7 @@ test("signup and recovery send redirect_to; password update forwards the user to
   assert.equal(accepted.statusCode, 200);
 });
 
-test("signup accepts Supabase top-level users and maps wrapped sessions", async (t) => {
+test("email signup stays pending for OTP and rejects a session when Supabase confirmation is disabled", async (t) => {
   const { handleApiRequest } = await import("../lib/api-core.mjs");
   const saved = { ...process.env };
   t.after(() => { process.env = saved; });
@@ -118,11 +122,168 @@ test("signup accepts Supabase top-level users and maps wrapped sessions", async 
     path: "/api/auth/signup",
     body: { name: "Wrapped User", identifier: "wrapped@example.com", password: "test-password" }
   });
-  assert.equal(active.statusCode, 201);
-  assert.equal(active.data.user.id, "wrapped-user");
-  assert.equal(active.data.session.userId, "wrapped-user");
-  assert.equal(active.data.session.token, "session-token");
-  assert.equal(active.data.requiresConfirmation, false);
+  assert.equal(active.statusCode, 503);
+  assert.match(active.data.error, /Enable email confirmations/);
+});
+
+test("email signup OTP verifies with Supabase and returns a usable session", async (t) => {
+  const { handleApiRequest } = await import("../lib/api-core.mjs");
+  const saved = { ...process.env };
+  t.after(() => { process.env = saved; });
+  process.env.NODE_ENV = "test";
+  process.env.SUPABASE_URL = "https://qml-test.supabase.co";
+  process.env.SUPABASE_ANON_KEY = "test-anon";
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const calls = [];
+  const profiles = [];
+  const authUser = { id: "otp-verified-user", email: "otp@example.com", user_metadata: { full_name: "OTP User", role: "vendor" } };
+  t.mock.method(globalThis, "fetch", async (input, options = {}) => {
+    const url = new URL(input);
+    calls.push({ url, options });
+    if (url.pathname === "/auth/v1/signup") {
+      return new Response(JSON.stringify({ user: authUser }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (url.pathname === "/auth/v1/verify") {
+      return new Response(JSON.stringify({
+        access_token: "verified-access-token",
+        refresh_token: "verified-refresh-token",
+        expires_in: 3600,
+        user: authUser
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (url.pathname.startsWith("/rest/v1/")) {
+      if (url.pathname === "/rest/v1/profiles" && options.method === "POST") {
+        const profile = JSON.parse(options.body);
+        profiles.push(profile);
+        return new Response(JSON.stringify([profile]), { status: 201, headers: { "Content-Type": "application/json" } });
+      }
+      if (url.pathname === "/rest/v1/profiles") {
+        const id = url.searchParams.get("id")?.replace(/^eq\./, "");
+        const email = url.searchParams.get("email")?.replace(/^eq\./, "");
+        const rows = profiles.filter((profile) => (!id || profile.id === id) && (!email || profile.email === email));
+        return new Response(JSON.stringify(rows), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      if (options.method === "POST") {
+        const value = JSON.parse(options.body);
+        return new Response(JSON.stringify([{ id: value.id || "mock-row", ...value }]), { status: 201, headers: { "Content-Type": "application/json" } });
+      }
+      return new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    return new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
+  });
+
+  const invalid = await handleApiRequest({ method: "POST", path: "/api/auth/verify-email-otp", body: { email: "otp@example.com", token: "12" } });
+  assert.equal(invalid.statusCode, 400);
+  assert.equal(calls.length, 0);
+
+  const signup = await handleApiRequest({
+    method: "POST",
+    path: "/api/auth/signup",
+    body: { name: "OTP User", identifier: "otp@example.com", password: "test-password", role: "vendor" }
+  });
+  assert.equal(signup.statusCode, 201);
+  assert.equal(signup.data.requiresConfirmation, true);
+
+  const verified = await handleApiRequest({ method: "POST", path: "/api/auth/verify-email-otp", body: { email: "OTP@example.com", token: "042819", role: "vendor" } });
+  assert.equal(verified.statusCode, 200);
+  assert.equal(verified.data.emailConfirmed, true);
+  assert.equal(verified.data.session.token, "verified-access-token");
+  assert.equal(verified.data.session.refreshToken, "verified-refresh-token");
+  assert.equal(verified.data.session.requestedRole, "vendor");
+  const verifyCall = calls.find((call) => call.url.pathname === "/auth/v1/verify");
+  assert.ok(verifyCall);
+  assert.deepEqual(JSON.parse(verifyCall.options.body), { type: "email", email: "otp@example.com", token: "042819" });
+});
+
+test("social provider URLs preserve the QML callback and signup context", async (t) => {
+  const { handleApiRequest } = await import("../lib/api-core.mjs");
+  const saved = { ...process.env };
+  t.after(() => { process.env = saved; });
+  process.env.NODE_ENV = "production";
+  process.env.SUPABASE_URL = "https://qml-test.supabase.co";
+  process.env.SUPABASE_ANON_KEY = "test-anon";
+  process.env.AUTH_REDIRECT_URL = callback;
+
+  const web = await handleApiRequest({
+    method: "POST",
+    path: "/api/auth/provider",
+    body: { provider: "google", client: "web", mode: "signup", role: "vendor", referralCode: "QML-123", codeChallenge: "a".repeat(43) }
+  });
+  const webUrl = new URL(web.data.authorizationUrl);
+  assert.equal(web.statusCode, 200);
+  assert.equal(webUrl.searchParams.get("provider"), "google");
+  assert.equal(webUrl.searchParams.get("code_challenge"), "a".repeat(43));
+  assert.equal(webUrl.searchParams.get("code_challenge_method"), "s256");
+  assert.equal(webUrl.searchParams.get("response_type"), "code");
+  const webRedirect = new URL(webUrl.searchParams.get("redirect_to"));
+  assert.equal(webRedirect.origin, "https://bulk-food-by-qml.onrender.com");
+  assert.equal(webRedirect.pathname, "/auth/callback.html");
+  assert.equal(webRedirect.searchParams.get("flow"), "social");
+  assert.equal(webRedirect.searchParams.get("mode"), "signup");
+  assert.equal(webRedirect.searchParams.get("role"), "vendor");
+  assert.equal(webRedirect.searchParams.get("referralCode"), "QML-123");
+
+  const mobile = await handleApiRequest({
+    method: "POST",
+    path: "/api/auth/provider",
+    body: { provider: "apple", client: "mobile", mode: "signin", codeChallenge: "b".repeat(43) }
+  });
+  const mobileUrl = new URL(mobile.data.authorizationUrl);
+  assert.equal(mobileUrl.searchParams.get("redirect_to"), "bulkfoodqml://auth/callback?flow=social&mode=signin&role=customer");
+  assert.equal(mobileUrl.searchParams.get("code_challenge"), "b".repeat(43));
+});
+
+test("social callback exchanges PKCE code, validates Supabase user, and creates a pending business role", async (t) => {
+  const { handleApiRequest } = await import("../lib/api-core.mjs");
+  const saved = { ...process.env };
+  t.after(() => { process.env = saved; });
+  process.env.SUPABASE_URL = "https://qml-test.supabase.co";
+  process.env.SUPABASE_ANON_KEY = "test-anon";
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const writes = [];
+  const authCalls = [];
+  t.mock.method(globalThis, "fetch", async (input, options = {}) => {
+    const url = new URL(input);
+    authCalls.push({ url, options });
+    if (url.pathname === "/auth/v1/token") {
+      assert.equal(url.searchParams.get("grant_type"), "pkce");
+      assert.deepEqual(JSON.parse(options.body), { auth_code: "oauth-code", code_verifier: "v".repeat(64) });
+      return new Response(JSON.stringify({ access_token: "verified-access-token", refresh_token: "refresh-token", expires_in: 3600 }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (url.pathname === "/auth/v1/user") {
+      assert.equal(options.headers.Authorization, "Bearer verified-access-token");
+      return new Response(JSON.stringify({
+        id: "oauth-user-1",
+        email: "farmer@example.com",
+        user_metadata: { full_name: "Amina Farmer" },
+        app_metadata: { provider: "google" }
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (url.pathname.endsWith("/profiles") && options.method === "GET") {
+      return new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } });
+    }
+    if (options.method === "POST") {
+      const rows = JSON.parse(options.body);
+      writes.push({ table: url.pathname.split("/").at(-1), rows });
+      return new Response(JSON.stringify([{ ...rows, created_at: new Date().toISOString() }]), { status: 201, headers: { "Content-Type": "application/json" } });
+    }
+    return new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } });
+  });
+
+  const result = await handleApiRequest({
+    method: "POST",
+    path: "/api/auth/provider/complete",
+    body: { code: "oauth-code", codeVerifier: "v".repeat(64), mode: "signup", role: "vendor" }
+  });
+  assert.equal(result.statusCode, 201);
+  assert.equal(result.data.user.id, "oauth-user-1");
+  assert.equal(result.data.user.email, "farmer@example.com");
+  assert.equal(result.data.session.token, "verified-access-token");
+  assert.equal(result.data.session.refreshToken, "refresh-token");
+  assert.equal(authCalls[0].url.pathname, "/auth/v1/token");
+  assert.equal(authCalls[1].options.headers.Authorization, "Bearer verified-access-token");
+  assert.equal(writes.find((write) => write.table === "role_applications").rows.role, "vendor");
+  assert.equal(writes.find((write) => write.table === "role_applications").rows.status, "pending");
 });
 
 test("resend confirmation forwards the safe callback and returns a non-enumerating response", async (t) => {

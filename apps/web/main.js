@@ -1766,6 +1766,8 @@ function initialAppScreen() {
   }
 }
 
+const forcedAuthScreen = ["signin", "signup"].includes(new URLSearchParams(window.location.search).get("screen"));
+
 let state = {
   summary: {},
   readiness: { services: [], blockers: [], launchReady: false },
@@ -1776,11 +1778,12 @@ let state = {
   vendors: [],
   opportunities: [],
   deliveries: [],
-  authScreen: localStorage.getItem("qmlAuthScreen") || "splash",
-  authComplete: localStorage.getItem("qmlAuthComplete") === "true",
+  authScreen: forcedAuthScreen ? new URLSearchParams(window.location.search).get("screen") : localStorage.getItem("qmlAuthScreen") || "splash",
+  authComplete: forcedAuthScreen ? false : localStorage.getItem("qmlAuthComplete") === "true",
   authSession: JSON.parse(localStorage.getItem("qmlAuthSession") || "null"),
   pendingConfirmationEmail: sessionStorage.getItem("qmlPendingConfirmationEmail") || "",
   signupRole: localStorage.getItem("qmlSignupRole") || "customer",
+  signupRoleInfoVisible: false,
   splashDragStart: 0,
   settingsToggles: JSON.parse(localStorage.getItem("qmlSettingsToggles") || "null") || {
     twoFactor: false,
@@ -1857,6 +1860,49 @@ let state = {
 queueMicrotask(boot);
 
 async function boot() {
+  const pendingOAuth = sessionStorage.getItem("qmlPendingOAuthBundle");
+  if (pendingOAuth) {
+    sessionStorage.removeItem("qmlPendingOAuthBundle");
+    try {
+      const result = JSON.parse(pendingOAuth);
+      if (result.bundle?.session?.token) {
+        const signingUp = result.mode === "signup";
+        state.signupRole = result.role || "customer";
+        state.onboarding.referralCode = result.referralCode || "";
+        localStorage.setItem("qmlSignupRole", state.signupRole);
+        applyAuthBundle(result.bundle, { onboardingComplete: !signingUp, showPromo: !signingUp });
+      }
+    } catch (error) {
+      console.warn("Provider sign-in could not be restored", error);
+    }
+  }
+  if (!pendingOAuth && state.authComplete) {
+    const expiresAt = Date.parse(state.authSession?.expiresAt || "");
+    if (!state.authSession?.token || (state.authSession.provider === "supabase" && !Number.isFinite(expiresAt) && !state.authSession.refreshToken)) {
+      state.authComplete = false;
+      state.authSession = null;
+      state.authScreen = "signin";
+      localStorage.removeItem("qmlAuthComplete");
+      localStorage.removeItem("qmlAuthSession");
+      localStorage.setItem("qmlAuthScreen", "signin");
+    } else if (state.authSession.provider === "supabase" && (!Number.isFinite(expiresAt) || expiresAt <= Date.now())) {
+      try {
+        if (!state.authSession?.refreshToken) throw new Error("Session expired");
+        const bundle = await postApi("/api/auth/refresh", {
+          refreshToken: state.authSession.refreshToken,
+          requestedRole: state.authSession.requestedRole || "customer"
+        });
+        applyAuthBundle(bundle, { onboardingComplete: state.onboardingComplete, showPromo: false });
+      } catch {
+        state.authComplete = false;
+        state.authSession = null;
+        state.authScreen = "signin";
+        localStorage.removeItem("qmlAuthComplete");
+        localStorage.removeItem("qmlAuthSession");
+        localStorage.setItem("qmlAuthScreen", "signin");
+      }
+    }
+  }
   applyTheme();
   render();
   try {
@@ -1914,6 +1960,7 @@ function renderMobileApp() {
     renderAuthScreen();
     return;
   }
+  document.body.classList?.remove?.("is-auth-screen");
 
   if (!state.onboardingComplete) {
     renderOnboarding();
@@ -2009,12 +2056,14 @@ function renderMobileApp() {
 }
 
 function renderAuthScreen() {
+  document.body.classList?.add?.("is-auth-screen");
   const screens = {
     splash: renderSplashScreen,
     signin: renderSignInScreen,
     signup: renderSignUpScreen,
     confirmEmail: renderConfirmationScreen,
     forgot: renderForgotPasswordScreen,
+    forgotSent: renderForgotPasswordSentScreen,
     verify: renderVerifyNumberScreen,
     otp: renderOtpScreen
   };
@@ -2046,31 +2095,33 @@ function renderSplashScreen() {
 }
 
 function renderSignInScreen() {
-  return authForm("Sign in", "Access your food plans, wallet, QML score, and role portals.", `
-    ${socialAuthButtons("signin")}
+  return authForm("Get started with QML Foods", "Sign in to your account", `
+    ${authModeSwitch("signin")}
     <label>Email or phone number</label>
-    <input id="authIdentifier" placeholder="ada@example.com or +234..." />
+    <input id="authIdentifier" autocomplete="username" placeholder="Email address" />
     <label>Password</label>
-    <input id="authPassword" type="password" placeholder="Password" />
+    <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
     <button class="text-link right" onclick="goAuth('forgot')">Forgot password?</button>
     <button class="btn primary full" onclick="finishAuth()">Sign in</button>
-    <button class="btn ghost full" onclick="goAuth('signup')">Create account</button>
+    <div class="auth-social-break"><div class="auth-divider"><span>or continue with</span></div>${socialAuthButtons("signin")}</div>
+    <p class="auth-account-prompt">Don't have an account? <button class="text-link" onclick="goAuth('signup')">Sign Up</button></p>
   `);
 }
 
 function renderSignUpScreen() {
   const selected = signupRequirement(state.signupRole);
-  return authForm("Create account", "Choose the account type first. Requirements and dashboard access change by role.", `
-    ${socialAuthButtons("signup")}
+  return authForm("Create an account", "Start your QML Foods journey", `
+    ${authModeSwitch("signup")}
     <label for="signupRole">Account type</label>
     <select id="signupRole" class="auth-select" onchange="selectSignupRole(this.value)">
       ${signupRoles().map((role) => `<option value="${role.key}" ${state.signupRole === role.key ? "selected" : ""}>${role.label}</option>`).join("")}
     </select>
-    <section class="signup-requirement-card">
+    ${state.signupRoleInfoVisible ? `<section class="signup-requirement-card" aria-live="polite" aria-atomic="true">
       <strong>${selected.title}</strong>
       <p>${selected.text}</p>
       <div>${selected.items.map((item) => `<span>${item}</span>`).join("")}</div>
-    </section>
+      <button class="signup-requirement-dismiss" type="button" aria-label="Hide account requirements" onclick="hideSignupRoleInfo()">&times;</button>
+    </section>` : ""}
     <label>Full name</label>
     <input id="signupName" placeholder="Ada Okonkwo" />
     <label>Email address</label>
@@ -2080,26 +2131,39 @@ function renderSignUpScreen() {
     <label>Referral code</label>
     <input id="signupReferral" placeholder="Optional, e.g. QML-ADA-4821" />
     <button class="btn primary full" onclick="beginRoleSignup()">Create ${selected.label} account</button>
-    <button class="text-link" onclick="goAuth('signin')">Already have an account?</button>
+    <div class="auth-social-break"><div class="auth-divider"><span>or continue with</span></div>${socialAuthButtons("signup")}</div>
+    <p class="auth-account-prompt">Already have an account? <button class="text-link" onclick="goAuth('signin')">Log in</button></p>
   `);
 }
 
+function authModeSwitch(active) {
+  return `<div class="auth-mode-switch" role="tablist" aria-label="Authentication"><button type="button" role="tab" aria-selected="${active === "signin"}" class="${active === "signin" ? "active" : ""}" onclick="goAuth('signin')">Login</button><button type="button" role="tab" aria-selected="${active === "signup"}" class="${active === "signup" ? "active" : ""}" onclick="goAuth('signup')">Sign Up</button></div>`;
+}
+
 function renderConfirmationScreen() {
-  return authForm("Check your inbox", "One quick step to activate your QML Foods account.", `
-    <div class="confirmation-mark" aria-hidden="true">✓</div>
-    <p class="confirmation-copy">We sent an activation link to <strong>${escapeHtml(state.pendingConfirmationEmail || "your email address")}</strong>. Open it to confirm your email, then come back here to sign in.</p>
-    <button class="btn primary full" onclick="resendSignupConfirmation()">Resend activation email</button>
-    <button class="btn ghost full" onclick="goAuth('signin')">Go to sign in</button>
-    <p class="auth-footnote">Check your spam folder if you do not see it. The link expires for your security.</p>
+  return authForm("Enter verification code", "Enter the six-digit code we sent to your email.", `
+    <p class="confirmation-copy">Verification code sent to <strong>${escapeHtml(state.pendingConfirmationEmail || "your email address")}</strong>.</p>
+    <div class="otp-row signup-otp-row" aria-label="Six-digit email verification code">${Array.from({ length: 6 }, (_, index) => `<input class="signup-otp-input" aria-label="Code digit ${index + 1}" inputmode="numeric" maxlength="1" ${index === 0 ? 'autocomplete="one-time-code"' : 'autocomplete="off"'} oninput="handleSignupOtpInput(this)" onkeydown="handleSignupOtpKeydown(event, this)" />`).join("")}</div>
+    <button class="btn primary full" onclick="verifySignupOtp()">Verify email</button>
+    <button class="text-link" onclick="resendSignupConfirmation()">Resend code</button>
+    <button class="btn ghost full" onclick="goAuth('signup')">Back to sign up</button>
+    <p class="auth-footnote">The code expires for your security. Check your spam folder if it is not in your inbox.</p>
   `);
 }
 
 function renderForgotPasswordScreen() {
-  return authForm("Forgot password", "Enter your phone or email. We will send a secure verification code.", `
-    <label>Email or phone number</label>
-    <input placeholder="ada@example.com or +234..." />
-    <button class="btn primary full" onclick="goAuth('otp')">Send code</button>
+  return authForm("Forgot password", "Enter the email address linked to your account. We will send a secure reset link.", `
+    <label>Email address</label>
+    <input id="recoveryEmail" type="email" autocomplete="email" placeholder="Email address" />
+    <button class="btn primary full auth-send-code" onclick="requestPasswordReset()">Send reset link</button>
     <button class="btn ghost full" onclick="goAuth('signin')">Back to sign in</button>
+  `);
+}
+
+function renderForgotPasswordSentScreen() {
+  return authForm("Check your email", "If an account matches that email, a secure password reset link is on its way.", `
+    <p class="auth-footnote">Open the link from QML Foods, choose a new password, then return here to sign in.</p>
+    <button class="btn primary full" onclick="goAuth('signin')">Back to sign in</button>
   `);
 }
 
@@ -2123,10 +2187,11 @@ function renderOtpScreen() {
 function authForm(title, subtitle, body) {
   return `
     <main class="auth-shell">
-      <div class="status-row"><span>QML FOODS</span><span>FRESH MARKETPLACE</span></div>
-      <header class="auth-top"><button onclick="goAuth('splash')">&lt;</button><h1>${title}</h1><span></span></header>
+      <div class="status-row"><span>9:41</span><span class="auth-status-icons" aria-label="Status">&#9679; &#9679; &#9642;</span></div>
+      <header class="auth-top"><button aria-label="Back" onclick="goAuth('splash')">&larr;</button><h1>${title}</h1><span></span></header>
       <section class="auth-card">
-        <div class="auth-wordmark"><span class="auth-logo-mark">Q</span><span>QML Foods</span></div>
+        <img class="auth-logo-image" src="/qml-logo-flat.png" alt="QML logo" />
+        <strong class="auth-wordmark">QML Foods</strong>
         <p>${subtitle}</p>
         ${body}
       </section>
@@ -2141,10 +2206,9 @@ function escapeHtml(value) {
 function socialAuthButtons(mode) {
   return `
     <div class="social-auth-grid">
-      <button type="button" onclick="continueWithProvider('google', '${mode}')"><b>G</b><span>Continue with Google</span></button>
-      <button type="button" onclick="continueWithProvider('apple', '${mode}')"><b></b><span>Continue with Apple</span></button>
+      <button type="button" onclick="continueWithProvider('apple', '${mode}')"><b aria-hidden="true"><svg viewBox="0 0 384 512" focusable="false"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 49.8-84.8-18.7-26.8-46.9-41.6-84.7-44.5-35.8-2.8-74.9 20.9-89.2 20.9-15.1 0-49.8-19.9-77-19.9C61.4 141.4 8 180.2 8 259.8c0 23.5 4.3 47.8 12.9 72.9 11.5 33.3 53 115 89.8 113.7 24.4-.6 41.6-17.4 74.8-17.4 32.3 0 48.2 17.4 75.4 17.4 37.1-.5 75.2-74.3 86.2-107.7-54.6-25.8-28.4-70.3-28.4-70zm-60.1-167.1C278.4 69.1 301 39.7 298.8 8c-30.3 2-65.4 20.1-85.3 43.7-18.6 21.6-34 51.5-30 81.4 33.5 2.6 67.8-17 75.1-31.5z"/></svg></b><span>Apple</span></button>
+      <button type="button" onclick="continueWithProvider('google', '${mode}')"><b aria-hidden="true">G</b><span>Google</span></button>
     </div>
-    <div class="auth-divider"><span>or</span></div>
   `;
 }
 
@@ -3934,8 +3998,6 @@ function renderOnboarding() {
   const steps = [
     onboardingWelcome,
     onboardingLocation,
-    onboardingAccount,
-    onboardingVerify,
     onboardingPurpose,
     onboardingSecurity
   ];
@@ -3976,7 +4038,7 @@ function onboardingWelcome() {
 function onboardingLocation() {
   return `
     <section class="onboarding-card">
-      <p class="eyebrow">Step 1 of 5</p>
+      <p class="eyebrow">Step 1 of 3</p>
       <h1>Where are you buying from?</h1>
       <p class="muted">We use your location to show available food, vendors, group buys, and delivery partners.</p>
       <label>Country</label>
@@ -4001,45 +4063,6 @@ function onboardingLocation() {
   `;
 }
 
-function onboardingAccount() {
-  return `
-    <section class="onboarding-card">
-      <p class="eyebrow">Step 2 of 5</p>
-      <h1>Create your QML account</h1>
-      <p class="muted">Sign up with phone number or email. You can add biometrics and card linking after verification.</p>
-      <label>Phone number or email</label>
-      <input id="contactInput" placeholder="+2348012345678 or ada@example.com" value="${state.onboarding.contact}" />
-      <div class="trust-list">
-        <span>OTP verification</span>
-        <span>One account, multiple roles</span>
-        <span>Referral supported</span>
-      </div>
-      <div class="onboarding-actions">
-        <button class="btn ghost" onclick="previousOnboarding()">Back</button>
-        <button class="btn primary" onclick="saveContactAndNext()">Send OTP</button>
-      </div>
-    </section>
-  `;
-}
-
-function onboardingVerify() {
-  return `
-    <section class="onboarding-card">
-      <p class="eyebrow">Step 3 of 5</p>
-      <h1>Verify your account</h1>
-      <p class="muted">Enter the 6 digit code sent to ${state.onboarding.contact || "your phone or email"}.</p>
-      <div class="otp-row">
-        ${[1, 2, 3, 4, 5, 6].map((item) => `<input maxlength="1" inputmode="numeric" value="${item === 1 ? "1" : ""}" />`).join("")}
-      </div>
-      <button class="link-btn" onclick="resendVerificationCode()">Resend code</button>
-      <div class="onboarding-actions">
-        <button class="btn ghost" onclick="previousOnboarding()">Back</button>
-        <button class="btn primary" onclick="nextOnboarding()">Verify</button>
-      </div>
-    </section>
-  `;
-}
-
 function onboardingPurpose() {
   const purposes = [
     "Buy food for myself",
@@ -4051,7 +4074,7 @@ function onboardingPurpose() {
   ];
   return `
     <section class="onboarding-card">
-      <p class="eyebrow">Step 4 of 5</p>
+      <p class="eyebrow">Step 2 of 3</p>
       <h1>What do you want to do first?</h1>
       <p class="muted">You can activate more roles later from the same account.</p>
       <div class="purpose-grid">
@@ -4075,7 +4098,7 @@ function onboardingPurpose() {
 function onboardingSecurity() {
   return `
     <section class="onboarding-card">
-      <p class="eyebrow">Step 5 of 5</p>
+      <p class="eyebrow">Step 3 of 3</p>
       <h1>Secure your food wallet</h1>
       <p class="muted">Set up your first security options. These protect payments, card linking, and role applications.</p>
       <div class="setup-list">
@@ -5769,10 +5792,14 @@ function handleAuthContinuation(response) {
     return true;
   }
   if (response?.requiresConfirmation || response?.session?.status === "pending_confirmation") {
+    state.authComplete = false;
+    state.onboardingComplete = false;
     state.authSession = response.session || null;
     state.authScreen = "confirmEmail";
     sessionStorage.setItem("qmlPendingConfirmationEmail", state.pendingConfirmationEmail || "");
     localStorage.setItem("qmlAuthSession", JSON.stringify(state.authSession));
+    localStorage.removeItem("qmlAuthComplete");
+    localStorage.setItem("qmlOnboardingComplete", "false");
     localStorage.setItem("qmlAuthScreen", "confirmEmail");
     renderMobileApp();
     setTimeout(() => window.showToast(response.message || "Check your email or phone to confirm your account."), 0);
@@ -6546,6 +6573,24 @@ window.goAuth = function goAuth(screen) {
   resetPageScroll();
 };
 
+window.requestPasswordReset = async function requestPasswordReset() {
+  const identifier = inputValue("recoveryEmail", "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier)) {
+    window.showToast("Enter a valid email address.");
+    return;
+  }
+  try {
+    const result = await postApi("/api/auth/password-reset", { identifier });
+    state.authScreen = "forgotSent";
+    localStorage.setItem("qmlAuthScreen", "forgotSent");
+    renderAuthScreen();
+    window.showToast(result.message || "If the account exists, a secure reset link has been sent.");
+  } catch (error) {
+    console.warn(error);
+    window.showToast(error.message || "Could not request a password reset.");
+  }
+};
+
 function resetPageScroll() {
   window.scrollTo(0, 0);
   document.documentElement.scrollTop = 0;
@@ -6700,7 +6745,13 @@ window.finishSplashSwipe = function finishSplashSwipe(event) {
 
 window.selectSignupRole = function selectSignupRole(role) {
   state.signupRole = role;
+  state.signupRoleInfoVisible = true;
   localStorage.setItem("qmlSignupRole", role);
+  renderMobileApp();
+};
+
+window.hideSignupRoleInfo = function hideSignupRoleInfo() {
+  state.signupRoleInfoVisible = false;
   renderMobileApp();
 };
 
@@ -6743,9 +6794,50 @@ window.resendSignupConfirmation = async function resendSignupConfirmation() {
   }
   try {
     const response = await postApi("/api/auth/resend-confirmation", { email: state.pendingConfirmationEmail });
-    window.showToast(response.message || "If the signup is pending, a new activation email is on its way.");
+    window.showToast(response.message || "If the signup is pending, a new verification code is on its way.");
   } catch (error) {
     window.showToast(error.message || "Could not resend the activation email.");
+  }
+};
+
+window.handleSignupOtpInput = function handleSignupOtpInput(input) {
+  const digits = input.value.replace(/\D/g, "");
+  const fields = [...document.querySelectorAll(".signup-otp-input")];
+  if (digits.length > 1) {
+    const start = fields.indexOf(input);
+    digits.slice(0, fields.length - start).split("").forEach((digit, offset) => { fields[start + offset].value = digit; });
+    fields[Math.min(start + digits.length, fields.length) - 1]?.focus();
+    return;
+  }
+  input.value = digits.slice(-1);
+  if (input.value) input.nextElementSibling?.focus();
+};
+
+window.handleSignupOtpKeydown = function handleSignupOtpKeydown(event, input) {
+  if (event.key === "Backspace" && !input.value) input.previousElementSibling?.focus();
+};
+
+window.verifySignupOtp = async function verifySignupOtp() {
+  const token = [...document.querySelectorAll(".signup-otp-input")].map((field) => field.value).join("");
+  if (!/^\d{6}$/.test(token)) {
+    window.showToast("Enter all six digits from your email.");
+    return;
+  }
+  try {
+    const response = await postApi("/api/auth/verify-email-otp", {
+      email: state.pendingConfirmationEmail || sessionStorage.getItem("qmlPendingConfirmationEmail") || "",
+      token,
+      role: state.signupRole || localStorage.getItem("qmlSignupRole") || "customer"
+    });
+    state.signupRole = response.session?.requestedRole || state.signupRole;
+    applyAuthBundle(response, { onboardingComplete: false, showPromo: false });
+    state.onboardingStep = 1;
+    persistOnboardingStep();
+    renderMobileApp();
+    setTimeout(() => window.showToast("Email verified. Your QML account is ready."), 0);
+  } catch (error) {
+    console.warn(error);
+    window.showToast(error.message || "Could not verify the email code.");
   }
 };
 
@@ -6762,11 +6854,16 @@ function signupPurposeForRole(role) {
 
 window.continueWithProvider = async function continueWithProvider(provider, mode) {
   try {
+    const codeVerifier = createOAuthCodeVerifier();
+    const codeChallenge = await createOAuthCodeChallenge(codeVerifier);
+    sessionStorage.setItem("qmlOAuthCodeVerifier", codeVerifier);
     const bundle = await postApi("/api/auth/provider", {
       provider,
-      name: provider === "google" ? "Google User" : "Apple User",
-      email: `${provider}.user@qml.local`,
-      referralCode: state.onboarding.referralCode || ""
+      client: "web",
+      mode,
+      role: mode === "signup" ? state.signupRole : "customer",
+      referralCode: state.onboarding.referralCode || "",
+      codeChallenge
     });
     if (handleAuthContinuation(bundle)) return;
     const onboardingComplete = mode === "signin";
@@ -6782,6 +6879,17 @@ window.continueWithProvider = async function continueWithProvider(provider, mode
     window.showToast(error.message || "Provider sign in failed");
   }
 };
+
+function createOAuthCodeVerifier() {
+  const bytes = crypto.getRandomValues(new Uint8Array(64));
+  return Array.from(bytes, (byte) => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"[byte % 66]).join("");
+}
+
+async function createOAuthCodeChallenge(verifier) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
 
 window.toggleSetting = function toggleSetting(key) {
   state.settingsToggles[key] = !state.settingsToggles[key];
@@ -8596,6 +8704,17 @@ window.saveReferralAndNext = function saveReferralAndNext() {
 };
 
 window.completeOnboarding = function completeOnboarding() {
+  if (!state.authComplete || !state.authSession?.token) {
+    state.authComplete = false;
+    state.authSession = null;
+    state.authScreen = "signin";
+    localStorage.removeItem("qmlAuthComplete");
+    localStorage.removeItem("qmlAuthSession");
+    localStorage.setItem("qmlAuthScreen", "signin");
+    renderMobileApp();
+    window.showToast("Verify your email and sign in before entering QML.");
+    return;
+  }
   state.onboardingComplete = true;
   state.screen = "home";
   activateSignupRole();
